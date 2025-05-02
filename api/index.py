@@ -1,14 +1,11 @@
-from flask import Flask, jsonify, render_template_string, request
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import random as r
 import json
 import os
 
 app = Flask(__name__)
 
-# المسار الخاص بملف بيانات المستخدمين
 users_file = "users.json"
-
-# وحدات اللعبة
 units = {
     'land': 'meters',
     'property': 'units',
@@ -35,6 +32,7 @@ def get_user(username):
     users = load_users()
     if username not in users:
         users[username] = {
+            "password": None,
             "balance": 1000,
             "day": 1,
             "properties": [],
@@ -43,88 +41,61 @@ def get_user(username):
         save_users(users)
     return users[username]
 
-# تحديث المستخدم
-def update_user(username, data):
-    users = load_users()
-    users[username] = data
-    save_users(users)
+# جلب عرض شراء
+def get_offer():
+    ttype = r.choice(['land', 'property', 'gold', 'factory', 'company', 'island'])
+    if ttype == 'land':
+        price = r.randint(100, 500)
+        return f"Land offer: Buy 1 plot for ${price}", {"type": ttype, "price": price}
+    if ttype == 'property':
+        price = r.randint(500, 2000)
+        return f"Property offer: Buy 1 unit for ${price}", {"type": ttype, "price": price}
+    if ttype == 'gold':
+        grams = r.randint(10, 100)
+        ppg = r.randint(50, 100)
+        total = grams * ppg
+        return f"Gold offer: {grams}g at ${ppg}/g for total ${total}", {"type": "gold", "grams": grams, "price_per_gram": ppg, "price": total}
+    # إضافة عروض أخرى كما في الكود الأصلي
+    return None, None
 
-# لعبة المستثمر - API
-@app.route('/api/start_game')
-def start_game():
-    # بدء اللعبة مع رصيد أولي
-    username = request.args.get('username', 'guest')
-    user = get_user(username)
-    balance = user["balance"]
-    return jsonify(balance=balance)
-
-@app.route('/api/daily_income')
-def daily_income():
-    username = request.args.get('username', 'guest')
-    user = get_user(username)
-    base_income = 100
-    bonus = len(user["properties"]) * 50
-    income = base_income + bonus
-    user["balance"] += income
-    user["event_log"].append(f"Daily income: ${income} (Base ${base_income} + ${bonus} bonus)")
-    update_user(username, user)
-    return jsonify(balance=user["balance"], income=income)
-
-# صفحة الواجهة الرئيسية
 @app.route('/')
 def home():
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Investor Game</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
-    <body class="bg-gray-100">
+    return render_template('index.html')
 
-        <div class="flex justify-center items-center min-h-screen">
-            <div class="bg-white p-8 rounded-lg shadow-lg w-96">
-                <h1 class="text-3xl font-bold text-center text-green-600 mb-6">Welcome to Investor Game</h1>
-                <p id="balance" class="text-xl text-center mb-4">Balance: $0</p>
-                <button onclick="startGame()" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300">Start Game</button>
-                <button onclick="dailyIncome()" class="w-full bg-yellow-500 text-white py-2 mt-4 rounded-md hover:bg-yellow-600 transition duration-300">Claim Daily Income</button>
-            </div>
-        </div>
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = get_user(username)
+        if user['password'] is None:
+            user['password'] = password
+            save_users(load_users())
+            return redirect(url_for('dashboard', username=username))
+        elif user['password'] == password:
+            return redirect(url_for('dashboard', username=username))
+        else:
+            return "Incorrect password", 403
+    return render_template('login.html')
 
-        <script>
-            let username = 'guest';  // يمكن تغيير هذا لاحقًا لجعل المستخدم يسجل دخوله
+@app.route('/dashboard/<username>', methods=['GET', 'POST'])
+def dashboard(username):
+    user = get_user(username)
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'buy':
+            msg, data = get_offer()
+            if msg:
+                # Simulate buying process
+                user['balance'] -= data['price']
+                user['event_log'].append(f"Bought {data['type']} for ${data['price']}")
+                save_users(load_users())
+        elif action == 'daily_income':
+            # Daily income processing
+            user['balance'] += 100
+            save_users(load_users())
 
-            // بدء اللعبة
-            function startGame() {
-                fetch(`/api/start_game?username=${username}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById("balance").textContent = `Balance: $${data.balance}`;
-                    })
-                    .catch(err => {
-                        console.error("Error:", err);
-                    });
-            }
-
-            // استلام الدخل اليومي
-            function dailyIncome() {
-                fetch(`/api/daily_income?username=${username}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById("balance").textContent = `Balance: $${data.balance}`;
-                        alert(`You earned $${data.income} today!`);
-                    })
-                    .catch(err => {
-                        console.error("Error:", err);
-                    });
-            }
-        </script>
-
-    </body>
-    </html>
-    """)
+    return render_template('dashboard.html', username=username, balance=user['balance'], event_log=user['event_log'])
 
 if __name__ == '__main__':
     app.run(debug=True)
