@@ -1,0 +1,20 @@
+{
+    "Youssef": {
+        "password": "yoyo",
+        "balance": 25466,
+        "day": 32,
+        "properties": [
+            {
+                "type": "gold",
+                "spent": 1267,
+                "grams": 20
+            },
+            {
+                "type": "property",
+                "spent": 1866,
+                "quantity": 1
+            }
+        ],
+        "event_log": []
+    }
+}
