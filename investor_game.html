@@ -335,14 +335,26 @@ function loginFlow(){
   const pass  = document.getElementById('password').value;
   if(!uname){ alert('اكتب اسم المستخدم'); return; }
 
-  const u = getUser(uname);
-  if(u.password && u.password !== pass){ alert('كلمة السر غير صحيحة'); return; }
-  if(!u.password) { u.password = pass; updateUser(uname,u); }
+  let u = getUser(uname); // يرجع user أو ينشئ واحد جديد
+  if(u.password && u.password !== pass){ 
+    alert('كلمة السر غير صحيحة'); 
+    return; 
+  }
+
+  if(!u.password){ 
+    u.password = pass; 
+    updateUser(uname, u); 
+  }
 
   sessionUser = uname;
-  localStorage.setItem('sessionUser',uname);
+  localStorage.setItem('sessionUser', uname);
+
+  // 👇 اتأكد أن البيانات اتحدثت من localStorage قبل ما تفتح اللعبة
+  u = getUser(uname);
+
   showGame();
 }
+
 
 function showGame(){
   // استرجاع المستخدم + إعداد يوم جديد لو لسه مفيش
