@@ -1,154 +1,72 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>لعبة الاستثمار - نسخة الويب</title>
+  <meta charset="UTF-8">
+  <title>Economy Game</title>
   <style>
-    :root{
-      --bg:#0f1115; --pane:#171a21; --muted:#8892a6; --fg:#e6edf3; --accent:#3b82f6; --ok:#22c55e; --warn:#eab308; --bad:#ef4444; --card:#1f2430; --line:#2b3242;
-    }
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue","Noto Sans Arabic","Noto Kufi Arabic",Arial,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";}
-    .container{display:flex;flex-direction:column;height:100vh}
-    .panel{flex:1;min-height:0;padding:16px;border-top:1px solid var(--line)}
-    .top{background:var(--pane)}
-    .bottom{background:var(--card)}
-    @media(min-width:768px){ .container{flex-direction:row} .panel{border-top:none;border-left:1px solid var(--line)} .top{border-left:none}}
-    h1,h2,h3{margin:0 0 8px}
-    .muted{color:var(--muted)}
-    .btn{appearance:none;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;background:#2b3242;color:var(--fg);transition:.15s}
-    .btn:hover{filter:brightness(1.1)}
-    .btn-primary{background:var(--accent)}
-    .btn-ok{background:var(--ok)}
-    .btn-warn{background:var(--warn);color:#111}
-    .btn-bad{background:var(--bad)}
-    input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:#12151c;color:var(--fg)}
-    .stack{display:flex;gap:8px;flex-wrap:wrap}
-    .card{background:#141821;border:1px solid var(--line);border-radius:14px;padding:12px}
-    .offer{background:#121721;border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}
-    .log{height:220px;overflow:auto;background:#0e121a;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px}
-    .stat{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:#12171f;border:1px solid var(--line)}
-    .grid{display:grid;gap:10px}
-    .grid-2{grid-template-columns:1fr}
-    @media(min-width:768px){.grid-2{grid-template-columns:1fr 1fr}}
-    .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#0f1420;border:1px solid var(--line);font-size:12px;margin:2px 0}
-    .footerbar{position:sticky;bottom:0;margin-top:10px;padding:10px;border-top:1px solid var(--line);background:#0b0e14;border-radius:12px}
-    .kpi{display:flex;gap:8px;flex-wrap:wrap}
-    .kpi .pill{font-weight:600}
-    .list{margin:0;padding-inline-start:18px}
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+    h1, h2 { text-align: center; }
+    .result { margin-top: 15px; padding: 10px; background: #eef; border-radius: 5px; }
+    button { margin: 5px; padding: 8px 15px; cursor: pointer; }
+    .properties, .log { margin-top: 20px; }
+    ul { list-style-type: none; padding: 0; }
+    li { margin: 3px 0; }
+    .login { text-align: center; }
   </style>
 </head>
 <body>
-
-  <!-- شاشة الدخول -->
-  <div id="loginView" class="container">
-    <div class="panel top">
-      <h1>تسجيل الدخول</h1>
-      <p class="muted">ادخل اسم المستخدم وكلمة السر (أول مرة بتسجل هتتسجل كلمة السر دي).</p>
-      <div class="card grid grid-2">
-        <div>
-          <label>اسم المستخدم</label>
-          <input id="username" placeholder="مثال: joe" />
-        </div>
-        <div>
-          <label>كلمة السر</label>
-          <input id="password" type="password" placeholder="••••••" />
-        </div>
-      </div>
-      <div class="stack" style="margin-top:10px">
-        <button class="btn btn-primary" onclick="loginFlow()">دخول</button>
-        <button class="btn" onclick="clearSession()">مسح الجلسة</button>
-      </div>
-    </div>
-    <div class="panel bottom">
-      <h3>ملاحظات</h3>
-      <ul class="list muted">
-        <li>بياناتك محفوظة محليًا في المتصفح (<code>localStorage</code>).</li>
-        <li>ممكن ترجع يومك من غير ما تفقد التقدم.</li>
-      </ul>
-    </div>
+<div class="container" id="app">
+  <!-- Login -->
+  <div id="loginScreen" class="login">
+    <h1>Login</h1>
+    <input type="text" id="username" placeholder="Username"><br><br>
+    <input type="password" id="password" placeholder="Password"><br><br>
+    <button onclick="login()">Login / Register</button>
+    <div id="loginMsg"></div>
   </div>
 
-  <!-- شاشة اللعبة -->
-  <div id="gameView" class="container" style="display:none">
-    <!-- معلومات عامة + أصولي -->
-    <div class="panel top">
-      <h2>أهلًا، <span id="playerName"></span></h2>
+  <!-- Game -->
+  <div id="gameScreen" style="display:none;">
+    <h1>Economy Game</h1>
+    <p><b>User:</b> <span id="userName"></span></p>
+    <p><b>Balance:</b> <span id="balance"></span></p>
+    <p><b>Day:</b> <span id="day"></span></p>
 
-      <div class="grid grid-2" style="margin-top:10px">
-        <div class="stat">📅 اليوم الحالي: <b id="day" style="margin-inline-start:6px">1</b></div>
-        <div class="stat">💰 الرصيد: <b id="balance" style="margin-inline-start:6px">1000</b> $</div>
-      </div>
+    <button onclick="nextDay()">Next Day</button>
+    <div id="dailyEvents" class="result"></div>
 
-      <div class="card" style="margin-top:10px">
-        <h3>📦 أملاكي</h3>
-        <div id="assetsEmpty" class="muted">لسه ما اشتريتش حاجة.</div>
-        <div id="assetsList"></div>
-        <div class="stack" style="margin-top:8px">
-          <button class="btn" onclick="mergePropertiesUI()">دمج الذهب</button>
-        </div>
-      </div>
+    <div id="result" class="result"></div>
 
-      <div class="card" style="margin-top:10px">
-        <h3>📈 حالة السوق اليوم</h3>
-        <div id="marketPills" class="kpi"></div>
-      </div>
-
-      <div class="footerbar">
-        <div class="kpi">
-          <span class="pill">العروض المتبقية اليوم: <b id="offersLeft">0</b></span>
-          <span class="pill">نوع الحدث التالي: <b id="nextEvent">—</b></span>
-        </div>
-      </div>
+    <div class="properties">
+      <h2>Properties</h2>
+      <ul id="propertiesList"></ul>
     </div>
 
-    <!-- العروض + اللوج -->
-    <div class="panel bottom">
-      <div class="stack">
-        <button id="newEventBtn" class="btn btn-primary" onclick="triggerNextEvent()">عرض/حدث جديد</button>
-        <button class="btn" onclick="logout()">تسجيل خروج</button>
-      </div>
-
-      <div id="offerArea"></div>
-
-      <div class="card" style="margin-top:12px">
-        <h3>📝 سجل الأحداث</h3>
-        <div id="eventLog" class="log"></div>
-      </div>
+    <div class="log">
+      <h2>Event Log</h2>
+      <ul id="eventLog"></ul>
     </div>
   </div>
+</div>
 
 <script>
-/* =========================
-   تطابق دوال بايثون مع جافاسكريبت
-   ========================= */
-
-// units كما في كود البايثون
-const units = {
-  land: 'meters',
-  property: 'units',
-  gold: 'grams',
-  factory: 'factories',
-  company: 'shares',
-  island: 'islands'
-};
-
-// 1) print_pause -> printPause
-function printPause(message, delay=2000){ return message; }
-
-// 2) load_users -> loadUsers (من localStorage)
-function loadUsers(){
-  try{ return JSON.parse(localStorage.getItem('users')||'{}'); }
-  catch{ return {}; }
+// ====================== Utils ======================
+function formatMoney(amount) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
 }
 
-// 3) save_users -> saveUsers
-function saveUsers(obj){ localStorage.setItem('users', JSON.stringify(obj)); }
+function loadUsers() {
+  return JSON.parse(localStorage.getItem("users") || "{}");
+}
 
-// 4) get_user -> getUser
-function getUser(username){
-  const users = loadUsers();
-  if(!users[username]){
+function saveUsers(users) {
+  localStorage.setItem("users", JSON.stringify(users));
+}
+
+function getUser(username) {
+  let users = loadUsers();
+  if (!users[username]) {
     users[username] = {
       password: null,
       balance: 1000,
@@ -161,476 +79,266 @@ function getUser(username){
   return users[username];
 }
 
-// 5) update_user -> updateUser
-function updateUser(username, data){
-  const users = loadUsers();
+function updateUser(username, data) {
+  let users = loadUsers();
   users[username] = data;
   saveUsers(users);
 }
 
-// 6) login(username) في البايثون كانت بتتحقق لو فيه باسورد
-function loginUser(username){ 
-  const u = getUser(username);
-  return u.password ? u : null;
+function mergeGold(user) {
+  let goldTotal = 0;
+  let others = [];
+  user.properties.forEach(p => {
+    if (p.type === "gold") goldTotal += p.grams;
+    else others.push(p);
+  });
+  if (goldTotal > 0) {
+    others.push({ type: "gold", grams: goldTotal, spent: 0 });
+  }
+  user.properties = others;
+  return user;
 }
 
-// 7) daily_income -> dailyIncome
-function dailyIncome(username){
-  const user = getUser(username);
-  const base_income = 100;
-  const bonus = user.properties.length * 50;
-  const income = base_income + bonus;
+// ====================== Login ======================
+let currentUser = null;
+
+function login() {
+  let username = document.getElementById("username").value.trim();
+  let password = document.getElementById("password").value.trim();
+  if (!username || !password) {
+    document.getElementById("loginMsg").innerText = "Enter username and password!";
+    return;
+  }
+  let user = getUser(username);
+
+  if (user.password && user.password !== password) {
+    document.getElementById("loginMsg").innerText = "Invalid password!";
+    return;
+  }
+  if (!user.password) {
+    user.password = password;
+    updateUser(username, user);
+  }
+
+  currentUser = username;
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("gameScreen").style.display = "block";
+  render();
+}
+
+// ====================== Game Logic ======================
+function dailyIncome(user) {
+  let base_income = 100;
+  let bonus = user.properties.length * 50;
+  let income = base_income + bonus;
   user.balance += income;
-  user.event_log.push(`💰 Daily income: $${income} (Base $${base_income} + $${bonus} bonus)`);
-  user.day += 1;
-  updateUser(username, user);
-  return `Daily income: $${income}. Balance: $${user.balance}`;
+  user.event_log.push(`Day ${user.day}: Daily income ${formatMoney(income)} (Base ${formatMoney(base_income)} + ${formatMoney(bonus)} bonus)`);
+  return user;
 }
 
-/* ===== السوق الديناميكي لأسعار مش ميتة ===== */
-const market = {
-  land: 1, property: 1, gold: 1, factory: 1, company: 1, island: 1
-};
-function randomIn(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-function vary(f, pct=0.2){ // ±20%
-  const delta = (Math.random()*2-1)*pct;
-  return Math.max(0.6, Math.min(1.6, f*(1+delta)));
-}
-function rollNewMarket(){
-  // كل يوم عامل جديد للسوق
-  market.land = vary(market.land);
-  market.property = vary(market.property);
-  market.gold = vary(market.gold, 0.3);
-  market.factory = vary(market.factory);
-  market.company = vary(market.company, 0.25);
-  market.island = vary(market.island, 0.15);
-  renderMarket();
+function getOffer() {
+  let types = ["land", "property", "gold", "factory", "company", "island"];
+  let ttype = types[Math.floor(Math.random() * types.length)];
+  let data = {};
+  let msg = "";
+
+  if (ttype === "land") {
+    let price = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
+    msg = `Land offer: Buy 1 plot for ${formatMoney(price)}`;
+    data = { type: "land", price };
+  }
+  else if (ttype === "property") {
+    let price = Math.floor(Math.random() * (2000 - 500 + 1)) + 500;
+    msg = `Property offer: Buy 1 unit for ${formatMoney(price)}`;
+    data = { type: "property", price };
+  }
+  else if (ttype === "gold") {
+    let grams = Math.floor(Math.random() * (100 - 10 + 1)) + 10;
+    let ppg = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+    let total = grams * ppg;
+    msg = `Gold offer: ${grams}g at ${formatMoney(ppg)}/g for total ${formatMoney(total)}`;
+    data = { type: "gold", grams, price_per_gram: ppg, price: total };
+  }
+  else if (ttype === "factory") {
+    let capacity = Math.floor(Math.random() * 5) + 1;
+    let price = capacity * (Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000);
+    msg = `Factory offer: Buy factory with capacity ${capacity} for ${formatMoney(price)}`;
+    data = { type: "factory", capacity, price };
+  }
+  else if (ttype === "company") {
+    let shares = Math.floor(Math.random() * (50 - 10 + 1)) + 10;
+    let price_per_share = Math.floor(Math.random() * (500 - 200 + 1)) + 200;
+    let total = shares * price_per_share;
+    msg = `Company offer: ${shares} shares at ${formatMoney(price_per_share)}/share for total ${formatMoney(total)}`;
+    data = { type: "company", shares, price_per_share, price: total };
+  }
+  else { // island
+    let sizes = ["small", "medium", "large"];
+    let size = sizes[Math.floor(Math.random() * sizes.length)];
+    let multiplier = { small: 500, medium: 2000, large: 5000 }[size];
+    let price = multiplier * (Math.floor(Math.random() * 3) + 1);
+    msg = `Island offer: Buy a ${size} island for ${formatMoney(price)}`;
+    data = { type: "island", size, price };
+  }
+
+  return { msg, data };
 }
 
-/* 8) get_offer -> getOffer (ترجع msg + data) */
-function getOffer(){
-  const types = ['land','property','gold','factory','company','island'];
-  const ttype = types[Math.floor(Math.random()*types.length)];
-  if (ttype === 'land'){
-    const price = randomIn(100,500) * market.land;
-    return [`Land offer: Buy 1 plot for $${Math.floor(price)}`, {type:ttype, price:Math.floor(price)}];
-  }
-  if (ttype === 'property'){
-    const price = randomIn(500,2000) * market.property;
-    return [`Property offer: Buy 1 unit for $${Math.floor(price)}`, {type:ttype, price:Math.floor(price)}];
-  }
-  if (ttype === 'gold'){
-    const grams = randomIn(10,100);
-    const ppg = randomIn(50,100) * market.gold;
-    const total = Math.floor(grams * ppg);
-    return [`Gold offer: ${grams}g at $${Math.floor(ppg)}/g for total $${total}`, {type:'gold', grams, price_per_gram:Math.floor(ppg), price:total}];
-  }
-  if (ttype === 'factory'){
-    const capacity = randomIn(1,5);
-    const price = Math.floor(capacity * randomIn(1000,5000) * market.factory);
-    return [`Factory offer: capacity ${capacity} for $${price}`, {type:ttype, capacity, price}];
-  }
-  if (ttype === 'company'){
-    const shares = randomIn(10,50);
-    const pps = Math.floor(randomIn(200,500) * market.company);
-    const total = shares * pps;
-    return [`Company offer: ${shares} shares at $${pps}/share for total $${total}`, {type:ttype, shares, price_per_share:pps, price:total}];
-  }
-  // island
-  const size = ['small','medium','large'][Math.floor(Math.random()*3)];
-  const mult = {small:500, medium:2000, large:5000}[size];
-  const price = Math.floor(mult * randomIn(1,3) * market.island);
-  return [`Island offer: Buy a ${size} island for $${price}`, {type:'island', size, price}];
-}
-
-/* 9) merge_properties -> mergeProperties */
-function mergeProperties(username){
-  const user = getUser(username);
-  const merged = [];
-  let gold_total = 0, gold_spent = 0;
-  for(const item of user.properties){
-    if(item.type==='gold'){
-      gold_total += item.grams||0;
-      gold_spent += item.spent||0;
-    }else{
-      merged.push(item);
-    }
-  }
-  if(gold_total){
-    merged.push({type:'gold', grams:gold_total, spent:gold_spent});
-  }
-  user.properties = merged;
-  updateUser(username, user);
-}
-
-/* 10) handle_offer -> handleOffer (تتوافق مع منطقك بما فيه التفاوض=شراء بسعر مخفّض) */
-function handleOffer(username, data, choice){
-  const user = getUser(username);
+function handleOffer(data, choice) {
+  let user = getUser(currentUser);
   let price = data.price;
-  if (choice === 'negotiate'){
-    const new_price = Math.floor(price * (1 - randomIn(5,30)/100));
-    choice = 'yes';
-    price = new_price;
-    user.event_log.push(`🤝 Negotiated price to $${price}`);
+
+  if (choice === "negotiate") {
+    let discount = Math.floor(Math.random() * (30 - 5 + 1)) + 5;
+    price = Math.floor(price * (1 - discount / 100));
+    choice = "yes";
   }
-  if (choice === 'yes'){
-    if (user.balance >= price){
+
+  if (choice === "yes") {
+    if (user.balance >= price) {
       user.balance -= price;
       let exists = false;
-      for (const item of user.properties){
-        if (item.type === data.type){
-          if (data.type === 'gold') item.grams = (item.grams||0) + (data.grams||0);
-          else if (data.type === 'company') item.shares = (item.shares||0) + (data.shares||0);
-          else if (data.type === 'factory') item.capacity = (item.capacity||0) + (data.capacity||0);
-          else item.quantity = (item.quantity||0) + 1;
-          item.spent = (item.spent||0) + price;
+
+      user.properties.forEach(item => {
+        if (item.type === data.type) {
+          if (data.type === "gold") item.grams += data.grams;
+          else if (data.type === "company") item.shares = (item.shares || 0) + data.shares;
+          else if (data.type === "factory") item.capacity = (item.capacity || 0) + data.capacity;
+          else item.quantity = (item.quantity || 0) + 1;
+          item.spent += price;
           exists = true;
         }
-      }
-      if(!exists){
-        const entry = {type:data.type, spent:price};
-        if (data.type==='gold') entry.grams = data.grams;
-        else if (data.type==='company') entry.shares = data.shares;
-        else if (data.type==='factory') entry.capacity = data.capacity;
+      });
+
+      if (!exists) {
+        let entry = { type: data.type, spent: price };
+        if (data.type === "gold") entry.grams = data.grams;
+        else if (data.type === "company") entry.shares = data.shares;
+        else if (data.type === "factory") entry.capacity = data.capacity;
         else entry.quantity = 1;
         user.properties.push(entry);
       }
-      user.event_log.push(`✅ Bought ${data.type} for $${price}`);
-      updateUser(username, user);
-      return `Purchased! New balance: $${user.balance}`;
-    }else{
-      user.event_log.push(`❌ You don't have enough balance.`);
-      updateUser(username, user);
-      return `You don't have enough balance.`;
+
+      user.event_log.push(`Bought ${data.type} for ${formatMoney(price)}`);
+      updateUser(currentUser, user);
+      render(`Purchased! New balance: ${formatMoney(user.balance)}`);
+    } else {
+      render("You don't have enough balance.");
     }
-  }else{
-    user.event_log.push(`🚫 No purchase made.`);
-    updateUser(username, user);
-    return `No purchase made.`;
-  }
-}
-
-/* 11) get_daily_events -> getDailyEvents */
-function getDailyEvents(){
-  const count = randomIn(2,5);
-  const types = ['offer','sell','auction'];
-  const out = [];
-  for(let i=0;i<count;i++){
-    out.push(types[randomIn(0,types.length-1)]);
-  }
-  return out;
-}
-
-/* =========================
-   واجهة وإدارة اليوم/الأحداث
-   ========================= */
-
-let sessionUser = null;
-let eventsToday = [];   // قائمة أحداث اليوم
-let currentEvent = null;// { kind:'offer'|'sell'|'auction', payload:{} }
-let pendingOffer = null;// بيانات العرض الحالي (للشراء/التفاوض/الرفض)
-
-function loginFlow(){
-  const uname = document.getElementById('username').value.trim();
-  const pass  = document.getElementById('password').value;
-  if(!uname){ alert('اكتب اسم المستخدم'); return; }
-
-  let u = getUser(uname); // يرجع user أو ينشئ واحد جديد
-  if(u.password && u.password !== pass){ 
-    alert('كلمة السر غير صحيحة'); 
-    return; 
-  }
-
-  if(!u.password){ 
-    u.password = pass; 
-    updateUser(uname, u); 
-  }
-
-  sessionUser = uname;
-  localStorage.setItem('sessionUser', uname);
-
-  // 👇 اتأكد أن البيانات اتحدثت من localStorage قبل ما تفتح اللعبة
-  u = getUser(uname);
-
-  showGame();
-}
-
-
-function showGame(){
-  // استرجاع المستخدم + إعداد يوم جديد لو لسه مفيش
-  const u = getUser(sessionUser);
-  document.getElementById('playerName').textContent = sessionUser;
-
-  // ابدأ يوم (أو كمل) مع سوق جديد
-  startNewDay();
-  // تنقل للواجهة
-  document.getElementById('loginView').style.display='none';
-  document.getElementById('gameView').style.display='flex';
-  renderAll();
-}
-
-function clearSession(){
-  localStorage.removeItem('sessionUser');
-  alert('تم مسح الجلسة الحالية فقط. البيانات محفوظة.');
-}
-
-function logout(){
-  localStorage.removeItem('sessionUser');
-  location.reload();
-}
-
-// يبدأ يوم جديد: يغيّر السوق، ينشئ أحداث اليوم
-function startNewDay(){
-  rollNewMarket();
-  eventsToday = getDailyEvents();
-  currentEvent = null;
-  pendingOffer = null;
-  renderFooterState();
-  logLine(`🔔 بدأ يوم جديد (${getUser(sessionUser).day}). أحداث اليوم: ${eventsToday.length}.`);
-  renderAll();
-}
-
-// تنفيذ الدخل اليومي وإنهاء اليوم ثم بدء يوم جديد
-function closeDayAndAddIncome(){
-  const msg = dailyIncome(sessionUser); // يحدّث الرصيد + اليوم + اللوج
-  logLine(`📅 نهاية اليوم → ${msg}`);
-  startNewDay();
-  renderAll();
-}
-
-// زرار "عرض/حدث جديد"
-function triggerNextEvent(){
-  if (pendingOffer){ return; } // في عرض مفتوح
-  if (eventsToday.length === 0){ closeDayAndAddIncome(); return; }
-
-  // اسحب حدث
-  const kind = eventsToday.shift();
-  if (kind === 'sell' && getUser(sessionUser).properties.length === 0){
-    // مفيش حاجة للبيع → حوّله offer
-    currentEvent = {kind: 'offer'};
   } else {
-    currentEvent = {kind};
+    render("No purchase made.");
   }
+}
 
-  if (currentEvent.kind === 'offer' || currentEvent.kind === 'auction'){
-    // عرض شراء (العادي أو مزاد بسعر أقل)
-    let [msg, data] = getOffer();
-    if (currentEvent.kind === 'auction'){
-      // خصم 10%-40% للمزاد
-      const disc = randomIn(10,40);
-      data.price = Math.floor(data.price * (1 - disc/100));
-      msg = `Auction: ${msg.replace('offer:','').trim()} → discounted (${disc}%) → $${data.price}`;
+function sellProperty(index) {
+  let user = getUser(currentUser);
+  if (index >= 0 && index < user.properties.length) {
+    let item = user.properties[index];
+    let value = Math.floor((item.spent || 100) * 0.6); // 60% back
+    user.balance += value;
+    user.event_log.push(`Sold ${item.type} for ${formatMoney(value)}`);
+    user.properties.splice(index, 1);
+    updateUser(currentUser, user);
+    render(`Sold property for ${formatMoney(value)}.`);
+  }
+}
+
+function auctionEvent() {
+  let { msg, data } = getOffer();
+  let user = getUser(currentUser);
+  let startPrice = Math.floor(data.price * 0.5);
+  let bid = Math.floor(startPrice + Math.random() * (data.price * 0.4));
+  return {
+    msg: `Auction! ${msg} (starting at ${formatMoney(startPrice)}). Current highest bid: ${formatMoney(bid)}.`,
+    data: data,
+    startPrice: startPrice,
+    bid: bid
+  };
+}
+
+function joinAuction(data, bid) {
+  let user = getUser(currentUser);
+  if (user.balance >= bid) {
+    user.balance -= bid;
+    user.properties.push({ type: data.type, spent: bid, quantity: 1 });
+    user.event_log.push(`Won auction for ${data.type} at ${formatMoney(bid)}`);
+    updateUser(currentUser, user);
+    render(`Auction won! Paid ${formatMoney(bid)}`);
+  } else {
+    render("Not enough money to join auction.");
+  }
+}
+
+// ====================== Daily Events ======================
+function getDailyEvents() {
+  let events = [];
+  let num = Math.floor(Math.random() * (5 - 2 + 1)) + 2;
+  for (let i = 0; i < num; i++) {
+    let choice = ["offer", "sell", "auction"][Math.floor(Math.random() * 3)];
+    events.push(choice);
+  }
+  return events;
+}
+
+function nextDay() {
+  let user = getUser(currentUser);
+  user.day += 1;
+  user = dailyIncome(user);
+  user = mergeGold(user);
+
+  let events = getDailyEvents();
+  let output = "";
+  events.forEach(e => {
+    if (e === "offer") {
+      let { msg, data } = getOffer();
+      output += `<p>${msg}</p>
+        <button onclick='handleOffer(${JSON.stringify(data)}, "yes")'>Buy</button>
+        <button onclick='handleOffer(${JSON.stringify(data)}, "negotiate")'>Negotiate</button>
+        <button onclick='handleOffer(${JSON.stringify(data)}, "no")'>Reject</button>`;
     }
-    pendingOffer = {type:'buy', data, text:msg};
-    renderOfferBuy(msg, data);
-  } else if (currentEvent.kind === 'sell'){
-    // عرض بيع من ممتلكاتك
-    const user = getUser(sessionUser);
-    const item = user.properties[Math.floor(Math.random()*user.properties.length)];
-    // سعر البيع حوالين ما تم إنفاقه ±30%
-    const baseSpent = Math.max(1, item.spent||100);
-    const price = Math.max(1, Math.floor(baseSpent * (1 + (Math.random()*0.6 - 0.3))));
-    pendingOffer = {type:'sell', data:{...item, price}, text:`Sell offer: ${describeItem(item)} for $${price}`};
-    renderOfferSell(pendingOffer.text, pendingOffer.data);
-  }
-
-  renderFooterState();
-}
-
-// رسمة وصف عنصر
-function describeItem(item){
-  if(item.type==='gold') return `Gold ${item.grams||0}g`;
-  if(item.type==='company') return `Company ${item.shares||0} shares`;
-  if(item.type==='factory') return `Factory cap ${item.capacity||0}`;
-  const q = item.quantity || 1;
-  return `${item.type} x${q}`;
-}
-
-/* ====== عرض شراء ====== */
-function renderOfferBuy(text, data){
-  const area = document.getElementById('offerArea');
-  area.innerHTML = `
-    <div class="offer">
-      <div style="margin-bottom:8px">${text}</div>
-      <div class="stack">
-        <button class="btn btn-ok"   onclick="uiAccept()">✅ اشتري</button>
-        <button class="btn btn-warn" onclick="uiNegotiate()">🤝 تفاوض (يشتري بالسعر الجديد)</button>
-        <button class="btn btn-bad"  onclick="uiReject()">❌ رفض</button>
-      </div>
-    </div>
-  `;
-}
-
-/* ====== عرض بيع من ممتلكاتك ====== */
-function renderOfferSell(text, data){
-  const area = document.getElementById('offerArea');
-  area.innerHTML = `
-    <div class="offer">
-      <div style="margin-bottom:8px">${text}</div>
-      <div class="stack">
-        <button class="btn btn-ok"   onclick="uiSellAccept()">✅ بيع</button>
-        <button class="btn btn-bad"  onclick="uiReject()">❌ رفض</button>
-      </div>
-    </div>
-  `;
-}
-
-/* ====== أزرار التفاعل مع العروض ====== */
-function uiAccept(){
-  if(!pendingOffer) return;
-  if (pendingOffer.type==='buy'){
-    const result = handleOffer(sessionUser, pendingOffer.data, 'yes');
-    logLine(result);
-  }
-  afterDecision();
-}
-
-function uiNegotiate(){
-  if(!pendingOffer) return;
-  if (pendingOffer.type==='buy'){
-    const result = handleOffer(sessionUser, pendingOffer.data, 'negotiate'); // يتفاوض ثم يشتري
-    logLine(result);
-  }
-  afterDecision();
-}
-
-function uiSellAccept(){
-  if(!pendingOffer) return;
-  if (pendingOffer.type==='sell'){
-    const user = getUser(sessionUser);
-    const d = pendingOffer.data;
-    // اخصم/أضف الرصيد وخرّج عنصر واحد (لو gold هنبيع كله كعنصر واحد)
-    user.balance += d.price;
-    // أنقص الملكية المقابلة (لو quantity>1 قلّلها)
-    let removed = false;
-    for (let i=0;i<user.properties.length;i++){
-      const it = user.properties[i];
-      if (it.type===d.type){
-        if (d.type==='gold'){ user.properties.splice(i,1); removed=true; break; }
-        if (d.type==='company' || d.type==='factory'){ user.properties.splice(i,1); removed=true; break; }
-        // land/property: قلل الكمية
-        if ((it.quantity||1) > 1){ it.quantity -= 1; removed=true; break; }
-        else { user.properties.splice(i,1); removed=true; break; }
-      }
+    if (e === "sell" && user.properties.length > 0) {
+      user.properties.forEach((p, idx) => {
+        output += `<p>Sell offer: Sell your ${p.type} for 60% value</p>
+        <button onclick='sellProperty(${idx})'>Sell ${p.type}</button>`;
+      });
     }
-    if(removed){
-      user.event_log.push(`💸 Sold ${describeItem(d)} for $${d.price}`);
-      updateUser(sessionUser,user);
-      logLine(`Sold successfully. New balance: $${user.balance}`);
-    }else{
-      logLine(`Sale failed (item not found).`);
+    if (e === "auction") {
+      let auc = auctionEvent();
+      output += `<p>${auc.msg}</p>
+        <button onclick='joinAuction(${JSON.stringify(auc.data)}, ${auc.bid})'>Join Auction</button>`;
     }
-  }
-  afterDecision();
-}
-
-function uiReject(){
-  if(!pendingOffer) return;
-  const user = getUser(sessionUser);
-  user.event_log.push('No action taken.');
-  updateUser(sessionUser,user);
-  logLine('تم رفض العرض.');
-  afterDecision();
-}
-
-function afterDecision(){
-  pendingOffer = null;
-  document.getElementById('offerArea').innerHTML = '';
-  // لو خلصت أحداث اليوم → دخـل يومي ويوم جديد
-  if (eventsToday.length === 0){ closeDayAndAddIncome(); }
-  renderAll();
-}
-
-/* ====== دمج الذهب (UI) ====== */
-function mergePropertiesUI(){
-  mergeProperties(sessionUser);
-  logLine('🔗 تم دمج الذهب في عنصر واحد.');
-  renderAll();
-}
-
-/* =========================
-   رندر الحالة والـ UI
-   ========================= */
-function renderAll(){
-  renderHeader();
-  renderAssets();
-  renderLog();
-  renderFooterState();
-}
-
-function renderHeader(){
-  const u = getUser(sessionUser);
-  document.getElementById('day').textContent = u.day;
-  document.getElementById('balance').textContent = u.balance;
-}
-
-function renderAssets(){
-  const u = getUser(sessionUser);
-  const box = document.getElementById('assetsList');
-  const empty = document.getElementById('assetsEmpty');
-  box.innerHTML = '';
-  if (!u.properties.length){
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-
-  // عرض كل أصل بشكل وسم صغير
-  u.properties.forEach((p)=>{
-    const div = document.createElement('div');
-    div.className='pill';
-    let txt = '';
-    if (p.type==='gold') txt = `ذهب: ${p.grams||0} ${units.gold}`;
-    else if (p.type==='company') txt = `شركة: ${p.shares||0} ${units.company}`;
-    else if (p.type==='factory') txt = `مصنع: سعة ${p.capacity||0}`;
-    else if (p.type==='land') txt = `أرض: ${p.quantity||1} ${units.land}`;
-    else if (p.type==='property') txt = `عقار: ${p.quantity||1} ${units.property}`;
-    else if (p.type==='island') txt = `جزيرة: ${p.quantity||1} ${units.island}`;
-    box.appendChild(div);
-    div.textContent = txt;
   });
+
+  updateUser(currentUser, user);
+  document.getElementById("dailyEvents").innerHTML = output;
+  render(`Day ${user.day} started.`);
 }
 
-function renderLog(){
-  const u = getUser(sessionUser);
-  const el = document.getElementById('eventLog');
-  el.innerHTML = u.event_log.map(x=>`<div>${x}</div>`).join('');
-  el.scrollTop = el.scrollHeight;
-}
+// ====================== Render ======================
+function render(extraMsg="") {
+  let user = getUser(currentUser);
+  document.getElementById("userName").innerText = currentUser;
+  document.getElementById("balance").innerText = formatMoney(user.balance);
+  document.getElementById("day").innerText = user.day;
 
-function renderFooterState(){
-  document.getElementById('offersLeft').textContent = eventsToday.length;
-  document.getElementById('nextEvent').textContent = eventsToday.length ? eventsToday[0] : '—';
-  document.getElementById('newEventBtn').textContent = eventsToday.length ? 'عرض/حدث جديد' : 'إنهاء اليوم (دخل تلقائي)';
-}
-
-function renderMarket(){
-  const holder = document.getElementById('marketPills');
-  holder.innerHTML='';
-  Object.entries(market).forEach(([k,v])=>{
-    const pill = document.createElement('span');
-    pill.className='pill';
-    pill.textContent = `${k}: ${v.toFixed(2)}x`;
-    holder.appendChild(pill);
+  let propList = document.getElementById("propertiesList");
+  propList.innerHTML = "";
+  user.properties.forEach((p, i) => {
+    let li = document.createElement("li");
+    li.textContent = JSON.stringify(p);
+    propList.appendChild(li);
   });
-}
 
-/* =========================
-   تهيئة عند الفتح
-   ========================= */
-(function init(){
-  const sess = localStorage.getItem('sessionUser');
-  if (sess){
-    sessionUser = sess;
-    document.getElementById('loginView').style.display='none';
-    document.getElementById('gameView').style.display='flex';
-    // اضمن وجود المستخدم
-    getUser(sessionUser);
-    // ابدأ يوم (سوق + أحداث)
-    startNewDay();
-    renderAll();
-  }
-})();
+  let logList = document.getElementById("eventLog");
+  logList.innerHTML = "";
+  user.event_log.slice(-15).reverse().forEach(ev => {
+    let li = document.createElement("li");
+    li.textContent = ev;
+    logList.appendChild(li);
+  });
+
+  if (extraMsg) document.getElementById("result").innerText = extraMsg;
+}
 </script>
 </body>
 </html>
