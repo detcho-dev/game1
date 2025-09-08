@@ -2,343 +2,284 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Economy Game</title>
+  <title>Economy Game - Terminal Mode</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-    .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-    h1, h2 { text-align: center; }
-    .result { margin-top: 15px; padding: 10px; background: #eef; border-radius: 5px; }
-    button { margin: 5px; padding: 8px 15px; cursor: pointer; }
-    .properties, .log { margin-top: 20px; }
-    ul { list-style-type: none; padding: 0; }
-    li { margin: 3px 0; }
-    .login { text-align: center; }
+    body {
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .terminal {
+      width: 95%;
+      max-width: 900px;
+      height: 90vh;
+      background: #000;
+      border: 2px solid #0f0;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    #output {
+      flex-grow: 1;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    #inputLine {
+      display: flex;
+    }
+    #prompt {
+      margin-right: 5px;
+    }
+    #command {
+      flex-grow: 1;
+      background: #000;
+      color: #0f0;
+      border: none;
+      outline: none;
+      font-family: monospace;
+      font-size: 16px;
+    }
+    @media (max-width: 600px) {
+      #command { font-size: 14px; }
+    }
   </style>
 </head>
 <body>
-<div class="container" id="app">
-  <!-- Login -->
-  <div id="loginScreen" class="login">
-    <h1>Login</h1>
-    <input type="text" id="username" placeholder="Username"><br><br>
-    <input type="password" id="password" placeholder="Password"><br><br>
-    <button onclick="login()">Login / Register</button>
-    <div id="loginMsg"></div>
-  </div>
-
-  <!-- Game -->
-  <div id="gameScreen" style="display:none;">
-    <h1>Economy Game</h1>
-    <p><b>User:</b> <span id="userName"></span></p>
-    <p><b>Balance:</b> <span id="balance"></span></p>
-    <p><b>Day:</b> <span id="day"></span></p>
-
-    <button onclick="nextDay()">Next Day</button>
-    <div id="dailyEvents" class="result"></div>
-
-    <div id="result" class="result"></div>
-
-    <div class="properties">
-      <h2>Properties</h2>
-      <ul id="propertiesList"></ul>
-    </div>
-
-    <div class="log">
-      <h2>Event Log</h2>
-      <ul id="eventLog"></ul>
+  <div class="terminal">
+    <div id="output"></div>
+    <div id="inputLine">
+      <span id="prompt">&gt;</span>
+      <input id="command" type="text" autofocus />
     </div>
   </div>
-</div>
 
 <script>
 // ====================== Utils ======================
+function print(text) {
+  let output = document.getElementById("output");
+  output.innerHTML += text + "\n";
+  output.scrollTop = output.scrollHeight;
+}
 function formatMoney(amount) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(amount);
 }
-
-function loadUsers() {
-  return JSON.parse(localStorage.getItem("users") || "{}");
-}
-
-function saveUsers(users) {
-  localStorage.setItem("users", JSON.stringify(users));
-}
-
-function getUser(username) {
-  let users = loadUsers();
-  if (!users[username]) {
-    users[username] = {
-      password: null,
-      balance: 1000,
-      day: 1,
-      properties: [],
-      event_log: []
-    };
+function loadUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
+function saveUsers(users){ localStorage.setItem("users",JSON.stringify(users)); }
+function getUser(username){
+  let users=loadUsers();
+  if(!users[username]){
+    users[username]={password:null,balance:1000,day:1,properties:[],event_log:[]};
     saveUsers(users);
   }
   return users[username];
 }
-
-function updateUser(username, data) {
-  let users = loadUsers();
-  users[username] = data;
-  saveUsers(users);
-}
-
-function mergeGold(user) {
-  let goldTotal = 0;
-  let others = [];
-  user.properties.forEach(p => {
-    if (p.type === "gold") goldTotal += p.grams;
-    else others.push(p);
-  });
-  if (goldTotal > 0) {
-    others.push({ type: "gold", grams: goldTotal, spent: 0 });
-  }
-  user.properties = others;
+function updateUser(username,data){ let users=loadUsers(); users[username]=data; saveUsers(users); }
+function mergeGold(user){
+  let total=0,others=[];
+  user.properties.forEach(p=>{ if(p.type==="gold") total+=p.grams; else others.push(p); });
+  if(total>0) others.push({type:"gold",grams:total,spent:0});
+  user.properties=others;
   return user;
-}
-
-// ====================== Login ======================
-let currentUser = null;
-
-function login() {
-  let username = document.getElementById("username").value.trim();
-  let password = document.getElementById("password").value.trim();
-  if (!username || !password) {
-    document.getElementById("loginMsg").innerText = "Enter username and password!";
-    return;
-  }
-  let user = getUser(username);
-
-  if (user.password && user.password !== password) {
-    document.getElementById("loginMsg").innerText = "Invalid password!";
-    return;
-  }
-  if (!user.password) {
-    user.password = password;
-    updateUser(username, user);
-  }
-
-  currentUser = username;
-  document.getElementById("loginScreen").style.display = "none";
-  document.getElementById("gameScreen").style.display = "block";
-  render();
 }
 
 // ====================== Game Logic ======================
-function dailyIncome(user) {
-  let base_income = 100;
-  let bonus = user.properties.length * 50;
-  let income = base_income + bonus;
-  user.balance += income;
-  user.event_log.push(`Day ${user.day}: Daily income ${formatMoney(income)} (Base ${formatMoney(base_income)} + ${formatMoney(bonus)} bonus)`);
+let currentUser=null;
+let offerCache=null; // holds last offer
+let auctionCache=null; // holds last auction
+
+function dailyIncome(user){
+  let base=100,bonus=user.properties.length*50;
+  let inc=base+bonus;
+  user.balance+=inc;
+  user.event_log.push(`Day ${user.day}: Income ${formatMoney(inc)}`);
+  print(`Daily income: ${formatMoney(inc)} (Balance: ${formatMoney(user.balance)})`);
   return user;
 }
-
-function getOffer() {
-  let types = ["land", "property", "gold", "factory", "company", "island"];
-  let ttype = types[Math.floor(Math.random() * types.length)];
-  let data = {};
-  let msg = "";
-
-  if (ttype === "land") {
-    let price = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
-    msg = `Land offer: Buy 1 plot for ${formatMoney(price)}`;
-    data = { type: "land", price };
+function getOffer(){
+  let types=["land","property","gold","factory","company","island"];
+  let ttype=types[Math.floor(Math.random()*types.length)];
+  let data={},msg="";
+  if(ttype==="land"){
+    let price=Math.floor(Math.random()*(500-100+1))+100;
+    msg=`Offer: Buy land plot for ${formatMoney(price)}`;
+    data={type:"land",price};
   }
-  else if (ttype === "property") {
-    let price = Math.floor(Math.random() * (2000 - 500 + 1)) + 500;
-    msg = `Property offer: Buy 1 unit for ${formatMoney(price)}`;
-    data = { type: "property", price };
+  else if(ttype==="property"){
+    let price=Math.floor(Math.random()*(2000-500+1))+500;
+    msg=`Offer: Buy property for ${formatMoney(price)}`;
+    data={type:"property",price};
   }
-  else if (ttype === "gold") {
-    let grams = Math.floor(Math.random() * (100 - 10 + 1)) + 10;
-    let ppg = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
-    let total = grams * ppg;
-    msg = `Gold offer: ${grams}g at ${formatMoney(ppg)}/g for total ${formatMoney(total)}`;
-    data = { type: "gold", grams, price_per_gram: ppg, price: total };
+  else if(ttype==="gold"){
+    let grams=Math.floor(Math.random()*(100-10+1))+10;
+    let ppg=Math.floor(Math.random()*(100-50+1))+50;
+    let total=grams*ppg;
+    msg=`Offer: Buy ${grams}g gold at ${formatMoney(ppg)}/g (Total ${formatMoney(total)})`;
+    data={type:"gold",grams,price:total};
   }
-  else if (ttype === "factory") {
-    let capacity = Math.floor(Math.random() * 5) + 1;
-    let price = capacity * (Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000);
-    msg = `Factory offer: Buy factory with capacity ${capacity} for ${formatMoney(price)}`;
-    data = { type: "factory", capacity, price };
+  else if(ttype==="factory"){
+    let cap=Math.floor(Math.random()*5)+1;
+    let price=cap*(Math.floor(Math.random()*(5000-1000+1))+1000);
+    msg=`Offer: Buy factory (capacity ${cap}) for ${formatMoney(price)}`;
+    data={type:"factory",capacity:cap,price};
   }
-  else if (ttype === "company") {
-    let shares = Math.floor(Math.random() * (50 - 10 + 1)) + 10;
-    let price_per_share = Math.floor(Math.random() * (500 - 200 + 1)) + 200;
-    let total = shares * price_per_share;
-    msg = `Company offer: ${shares} shares at ${formatMoney(price_per_share)}/share for total ${formatMoney(total)}`;
-    data = { type: "company", shares, price_per_share, price: total };
+  else if(ttype==="company"){
+    let shares=Math.floor(Math.random()*(50-10+1))+10;
+    let pps=Math.floor(Math.random()*(500-200+1))+200;
+    let total=shares*pps;
+    msg=`Offer: Buy ${shares} company shares at ${formatMoney(pps)} each (Total ${formatMoney(total)})`;
+    data={type:"company",shares,price:total};
   }
-  else { // island
-    let sizes = ["small", "medium", "large"];
-    let size = sizes[Math.floor(Math.random() * sizes.length)];
-    let multiplier = { small: 500, medium: 2000, large: 5000 }[size];
-    let price = multiplier * (Math.floor(Math.random() * 3) + 1);
-    msg = `Island offer: Buy a ${size} island for ${formatMoney(price)}`;
-    data = { type: "island", size, price };
+  else {
+    let sizes=["small","medium","large"];
+    let size=sizes[Math.floor(Math.random()*sizes.length)];
+    let mult={small:500,medium:2000,large:5000}[size];
+    let price=mult*(Math.floor(Math.random()*3)+1);
+    msg=`Offer: Buy a ${size} island for ${formatMoney(price)}`;
+    data={type:"island",size,price};
   }
-
-  return { msg, data };
+  return {msg,data};
 }
-
-function handleOffer(data, choice) {
-  let user = getUser(currentUser);
-  let price = data.price;
-
-  if (choice === "negotiate") {
-    let discount = Math.floor(Math.random() * (30 - 5 + 1)) + 5;
-    price = Math.floor(price * (1 - discount / 100));
-    choice = "yes";
+function handleOffer(choice){
+  if(!offerCache){ print("No active offer."); return; }
+  let user=getUser(currentUser);
+  let price=offerCache.price;
+  if(choice==="negotiate"){
+    let disc=Math.floor(Math.random()*(30-5+1))+5;
+    price=Math.floor(price*(1-disc/100));
+    choice="yes";
+    print(`Negotiated price: ${formatMoney(price)}`);
   }
-
-  if (choice === "yes") {
-    if (user.balance >= price) {
-      user.balance -= price;
-      let exists = false;
-
-      user.properties.forEach(item => {
-        if (item.type === data.type) {
-          if (data.type === "gold") item.grams += data.grams;
-          else if (data.type === "company") item.shares = (item.shares || 0) + data.shares;
-          else if (data.type === "factory") item.capacity = (item.capacity || 0) + data.capacity;
-          else item.quantity = (item.quantity || 0) + 1;
-          item.spent += price;
-          exists = true;
+  if(choice==="yes"){
+    if(user.balance>=price){
+      user.balance-=price;
+      let exists=false;
+      user.properties.forEach(p=>{
+        if(p.type===offerCache.type){
+          if(p.type==="gold") p.grams+=offerCache.grams;
+          else if(p.type==="company") p.shares=(p.shares||0)+offerCache.shares;
+          else if(p.type==="factory") p.capacity=(p.capacity||0)+offerCache.capacity;
+          else p.quantity=(p.quantity||0)+1;
+          p.spent+=price; exists=true;
         }
       });
-
-      if (!exists) {
-        let entry = { type: data.type, spent: price };
-        if (data.type === "gold") entry.grams = data.grams;
-        else if (data.type === "company") entry.shares = data.shares;
-        else if (data.type === "factory") entry.capacity = data.capacity;
-        else entry.quantity = 1;
+      if(!exists){
+        let entry={type:offerCache.type,spent:price};
+        if(offerCache.grams) entry.grams=offerCache.grams;
+        if(offerCache.shares) entry.shares=offerCache.shares;
+        if(offerCache.capacity) entry.capacity=offerCache.capacity;
+        if(!entry.grams&&!entry.shares&&!entry.capacity) entry.quantity=1;
         user.properties.push(entry);
       }
+      user.event_log.push(`Bought ${offerCache.type} for ${formatMoney(price)}`);
+      updateUser(currentUser,user);
+      print(`Purchased ${offerCache.type}! Balance: ${formatMoney(user.balance)}`);
+    } else { print("Not enough balance."); }
+  } else { print("Offer rejected."); }
+  offerCache=null;
+}
+function sellProperty(index){
+  let user=getUser(currentUser);
+  if(index>=0&&index<user.properties.length){
+    let item=user.properties[index];
+    let val=Math.floor((item.spent||100)*0.6);
+    user.balance+=val;
+    user.event_log.push(`Sold ${item.type} for ${formatMoney(val)}`);
+    user.properties.splice(index,1);
+    updateUser(currentUser,user);
+    print(`Sold ${item.type} for ${formatMoney(val)} (Balance: ${formatMoney(user.balance)})`);
+  } else print("Invalid property index.");
+}
+function auctionEvent(){
+  let {msg,data}=getOffer();
+  let start=Math.floor(data.price*0.5);
+  let bid=Math.floor(start+Math.random()*(data.price*0.4));
+  return {msg:`Auction: ${msg} (Start ${formatMoney(start)} | Current bid ${formatMoney(bid)})`,data,bid};
+}
+function joinAuction(){
+  if(!auctionCache){ print("No auction running."); return; }
+  let user=getUser(currentUser);
+  if(user.balance>=auctionCache.bid){
+    user.balance-=auctionCache.bid;
+    user.properties.push({type:auctionCache.data.type,spent:auctionCache.bid,quantity:1});
+    user.event_log.push(`Won auction: ${auctionCache.data.type} at ${formatMoney(auctionCache.bid)}`);
+    updateUser(currentUser,user);
+    print(`Auction won! Paid ${formatMoney(auctionCache.bid)} (Balance: ${formatMoney(user.balance)})`);
+  } else print("Not enough money to join auction.");
+  auctionCache=null;
+}
 
-      user.event_log.push(`Bought ${data.type} for ${formatMoney(price)}`);
-      updateUser(currentUser, user);
-      render(`Purchased! New balance: ${formatMoney(user.balance)}`);
-    } else {
-      render("You don't have enough balance.");
+// ====================== Events & Flow ======================
+function nextDay(){
+  let user=getUser(currentUser);
+  user.day+=1; user=mergeGold(user); user=dailyIncome(user);
+  updateUser(currentUser,user);
+  let events=["offer","sell","auction"];
+  let num=Math.floor(Math.random()*(5-2+1))+2;
+  print(`\n--- Day ${user.day} Events ---`);
+  for(let i=0;i<num;i++){
+    let e=events[Math.floor(Math.random()*events.length)];
+    if(e==="offer"){
+      let o=getOffer(); offerCache=o.data;
+      print(o.msg); print("Commands: buy / negotiate / reject");
     }
-  } else {
-    render("No purchase made.");
+    else if(e==="sell"&&user.properties.length>0){
+      user.properties.forEach((p,idx)=>{ print(`Sell option: ${idx} -> ${JSON.stringify(p)}`); });
+      print("Use command: sell [index]");
+    }
+    else if(e==="auction"){
+      auctionCache=auctionEvent(); print(auctionCache.msg); print("Command: auction");
+    }
   }
 }
 
-function sellProperty(index) {
-  let user = getUser(currentUser);
-  if (index >= 0 && index < user.properties.length) {
-    let item = user.properties[index];
-    let value = Math.floor((item.spent || 100) * 0.6); // 60% back
-    user.balance += value;
-    user.event_log.push(`Sold ${item.type} for ${formatMoney(value)}`);
-    user.properties.splice(index, 1);
-    updateUser(currentUser, user);
-    render(`Sold property for ${formatMoney(value)}.`);
+// ====================== Command Input ======================
+function executeCommand(cmd){
+  let args=cmd.trim().split(" ");
+  let user=getUser(currentUser);
+  if(!currentUser){
+    if(args[0]==="login"){
+      if(args.length<3){ print("Usage: login username password"); return; }
+      let uname=args[1],pass=args[2],u=getUser(uname);
+      if(u.password&&u.password!==pass){ print("Invalid password."); return; }
+      if(!u.password){ u.password=pass; updateUser(uname,u); }
+      currentUser=uname; print(`Logged in as ${uname}. Balance: ${formatMoney(u.balance)}. Type 'next' to start.`);
+    } else print("Please login: login [username] [password]");
+    return;
+  }
+  switch(args[0]){
+    case "help": 
+      print("Commands: next, status, props, log, buy, negotiate, reject, sell [index], auction, help");
+      break;
+    case "next": nextDay(); break;
+    case "status": print(`Balance: ${formatMoney(user.balance)} | Day ${user.day}`); break;
+    case "props": user.properties.forEach((p,i)=>print(`${i}: ${JSON.stringify(p)}`)); break;
+    case "log": user.event_log.slice(-10).forEach(l=>print(l)); break;
+    case "buy": handleOffer("yes"); break;
+    case "negotiate": handleOffer("negotiate"); break;
+    case "reject": handleOffer("no"); break;
+    case "sell": sellProperty(parseInt(args[1])); break;
+    case "auction": joinAuction(); break;
+    default: print("Unknown command. Type 'help' for options.");
   }
 }
 
-function auctionEvent() {
-  let { msg, data } = getOffer();
-  let user = getUser(currentUser);
-  let startPrice = Math.floor(data.price * 0.5);
-  let bid = Math.floor(startPrice + Math.random() * (data.price * 0.4));
-  return {
-    msg: `Auction! ${msg} (starting at ${formatMoney(startPrice)}). Current highest bid: ${formatMoney(bid)}.`,
-    data: data,
-    startPrice: startPrice,
-    bid: bid
-  };
-}
-
-function joinAuction(data, bid) {
-  let user = getUser(currentUser);
-  if (user.balance >= bid) {
-    user.balance -= bid;
-    user.properties.push({ type: data.type, spent: bid, quantity: 1 });
-    user.event_log.push(`Won auction for ${data.type} at ${formatMoney(bid)}`);
-    updateUser(currentUser, user);
-    render(`Auction won! Paid ${formatMoney(bid)}`);
-  } else {
-    render("Not enough money to join auction.");
+// ====================== Input Handling ======================
+let input=document.getElementById("command");
+input.addEventListener("keydown",function(e){
+  if(e.key==="Enter"){
+    let cmd=input.value; print("> "+cmd); input.value="";
+    executeCommand(cmd);
   }
-}
-
-// ====================== Daily Events ======================
-function getDailyEvents() {
-  let events = [];
-  let num = Math.floor(Math.random() * (5 - 2 + 1)) + 2;
-  for (let i = 0; i < num; i++) {
-    let choice = ["offer", "sell", "auction"][Math.floor(Math.random() * 3)];
-    events.push(choice);
-  }
-  return events;
-}
-
-function nextDay() {
-  let user = getUser(currentUser);
-  user.day += 1;
-  user = dailyIncome(user);
-  user = mergeGold(user);
-
-  let events = getDailyEvents();
-  let output = "";
-  events.forEach(e => {
-    if (e === "offer") {
-      let { msg, data } = getOffer();
-      output += `<p>${msg}</p>
-        <button onclick='handleOffer(${JSON.stringify(data)}, "yes")'>Buy</button>
-        <button onclick='handleOffer(${JSON.stringify(data)}, "negotiate")'>Negotiate</button>
-        <button onclick='handleOffer(${JSON.stringify(data)}, "no")'>Reject</button>`;
-    }
-    if (e === "sell" && user.properties.length > 0) {
-      user.properties.forEach((p, idx) => {
-        output += `<p>Sell offer: Sell your ${p.type} for 60% value</p>
-        <button onclick='sellProperty(${idx})'>Sell ${p.type}</button>`;
-      });
-    }
-    if (e === "auction") {
-      let auc = auctionEvent();
-      output += `<p>${auc.msg}</p>
-        <button onclick='joinAuction(${JSON.stringify(auc.data)}, ${auc.bid})'>Join Auction</button>`;
-    }
-  });
-
-  updateUser(currentUser, user);
-  document.getElementById("dailyEvents").innerHTML = output;
-  render(`Day ${user.day} started.`);
-}
-
-// ====================== Render ======================
-function render(extraMsg="") {
-  let user = getUser(currentUser);
-  document.getElementById("userName").innerText = currentUser;
-  document.getElementById("balance").innerText = formatMoney(user.balance);
-  document.getElementById("day").innerText = user.day;
-
-  let propList = document.getElementById("propertiesList");
-  propList.innerHTML = "";
-  user.properties.forEach((p, i) => {
-    let li = document.createElement("li");
-    li.textContent = JSON.stringify(p);
-    propList.appendChild(li);
-  });
-
-  let logList = document.getElementById("eventLog");
-  logList.innerHTML = "";
-  user.event_log.slice(-15).reverse().forEach(ev => {
-    let li = document.createElement("li");
-    li.textContent = ev;
-    logList.appendChild(li);
-  });
-
-  if (extraMsg) document.getElementById("result").innerText = extraMsg;
-}
+});
+print("Welcome to Economy Game (Terminal Mode)");
+print("Login with: login [username] [password]");
 </script>
 </body>
 </html>
