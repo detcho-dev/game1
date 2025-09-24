@@ -5,44 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investor Game</title>
     <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --gray: #95a5a6;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: var(--light);
             min-height: 100vh;
-            color: #333;
+            padding: 20px;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         .game-container {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .header {
             text-align: center;
-            color: white;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 2.5rem;
+            color: var(--secondary);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .stats {
@@ -53,323 +76,296 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.2);
             padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card h3 {
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-
-        .stat-card .value {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .game-section {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
-        .section-title {
-            font-size: 1.3em;
-            margin-bottom: 15px;
-            color: #667eea;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 5px;
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary);
         }
 
-        .offer-display {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #28a745;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 15px 0;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .btn-primary {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-warning {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .properties-list {
-            max-height: 200px;
-            overflow-y: auto;
-            margin: 15px 0;
-        }
-
-        .property-item {
-            background: #e9ecef;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
         }
 
         .event-log {
-            max-height: 150px;
+            height: 300px;
             overflow-y: auto;
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 15px;
-        }
-
-        .event-item {
-            padding: 5px 0;
-            border-bottom: 1px solid #dee2e6;
-            font-size: 0.9em;
-        }
-
-        .event-item:last-child {
-            border-bottom: none;
-        }
-
-        .input-group {
-            margin: 10px 0;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1em;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 15% auto;
-            padding: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 15px;
             border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .log-entry.success { color: var(--success); }
+        .log-entry.warning { color: var(--warning); }
+        .log-entry.error { color: var(--accent); }
+
+        .offer-display {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .offer-text {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--light);
+        }
+
+        .offer-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .btn-primary { background: var(--secondary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-danger { background: var(--accent); color: white; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .property-card {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
             text-align: center;
         }
 
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .property-type {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .property-amount {
+            font-size: 1.2rem;
+            color: var(--success);
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--light);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
         }
 
         .hidden {
             display: none;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            .header h1 {
-                font-size: 2em;
-            }
-
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-            .actions {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
+        .day-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
         }
 
-        .game-screen {
-            display: none;
-        }
-
-        .active {
-            display: block;
-        }
-
-        .negotiation-section {
-            margin: 15px 0;
+        .negotiation-panel {
+            margin-top: 15px;
             padding: 15px;
-            background: #fff3cd;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .auction-panel {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .auction-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .auction-input input {
+            flex: 1;
+            padding: 10px;
             border-radius: 5px;
-            border: 1px solid #ffeaa7;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
         }
 
         .progress-bar {
-            width: 100%;
-            height: 20px;
-            background-color: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
             margin: 10px 0;
+            overflow: hidden;
         }
 
         .progress {
             height: 100%;
-            background-color: #28a745;
+            background: var(--success);
+            width: 0%;
             transition: width 0.3s ease;
+        }
+
+        .event-counter {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            color: var(--gray);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="game-container">
-            <div class="header">
-                <h1>💰 Investor Game</h1>
-                <p>Build your investment empire day by day!</p>
+        <div class="header">
+            <h1>💰 Investor Game</h1>
+        </div>
+
+        <div id="loginScreen" class="login-container">
+            <h2 style="text-align: center; margin-bottom: 20px;">Login / Register</h2>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" class="form-control" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" class="form-control" placeholder="Enter password">
+            </div>
+            <button id="loginBtn" class="btn btn-primary" style="width: 100%;">Login / Register</button>
+        </div>
+
+        <div id="gameScreen" class="hidden">
+            <div class="day-indicator">Day: <span id="dayDisplay">1</span></div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="balance">$1000</div>
+                    <div class="stat-label">Balance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="income">$0</div>
+                    <div class="stat-label">Daily Income</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="propertyCount">0</div>
+                    <div class="stat-label">Properties</div>
+                </div>
             </div>
 
-            <div id="login-screen" class="game-screen active">
-                <div class="game-section">
-                    <h2 class="section-title">Welcome to Investor Game</h2>
-                    <form class="login-form" id="loginForm">
-                        <div class="input-group">
-                            <label for="username">Username:</label>
-                            <input type="text" id="username" required>
+            <div class="game-container">
+                <div class="panel">
+                    <h3>Market Events</h3>
+                    <div class="event-counter">Events remaining: <span id="eventsRemaining">0</span></div>
+                    <div class="progress-bar">
+                        <div class="progress" id="eventProgress"></div>
+                    </div>
+                    
+                    <div id="currentEvent" class="offer-display">
+                        <div class="offer-text">Waiting for next event...</div>
+                    </div>
+                    
+                    <div id="negotiationPanel" class="negotiation-panel hidden">
+                        <h4>Negotiation</h4>
+                        <p>Negotiated price: $<span id="negotiatedPrice">0</span></p>
+                        <div class="offer-actions">
+                            <button id="acceptNegotiation" class="btn btn-success">Accept</button>
+                            <button id="rejectNegotiation" class="btn btn-danger">Reject</button>
                         </div>
-                        <div class="input-group">
-                            <label for="password">Password:</label>
-                            <input type="password" id="password" required>
+                    </div>
+                    
+                    <div id="auctionPanel" class="auction-panel hidden">
+                        <h4>Auction</h4>
+                        <p>Current bid: $<span id="currentBid">0</span></p>
+                        <div class="auction-input">
+                            <input type="number" id="bidInput" placeholder="Enter your bid">
+                            <button id="placeBid" class="btn btn-primary">Place Bid</button>
                         </div>
-                        <button type="submit" class="btn btn-primary">Login / Create Account</button>
-                    </form>
-                </div>
-            </div>
+                        <div class="offer-actions">
+                            <button id="skipAuction" class="btn btn-warning">Skip</button>
+                        </div>
+                    </div>
 
-            <div id="game-screen" class="game-screen">
-                <div class="stats">
-                    <div class="stat-card">
-                        <h3>Day</h3>
-                        <div class="value" id="currentDay">1</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Balance</h3>
-                        <div class="value" id="balance">$1000</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Properties</h3>
-                        <div class="value" id="propertyCount">0</div>
+                    <div class="offer-actions">
+                        <button id="buyBtn" class="btn btn-success">Buy</button>
+                        <button id="negotiateBtn" class="btn btn-warning">Negotiate</button>
+                        <button id="declineBtn" class="btn btn-danger">Decline</button>
                     </div>
                 </div>
 
-                <div class="game-section">
-                    <h2 class="section-title">Daily Income</h2>
-                    <div class="offer-display" id="dailyIncomeInfo">
-                        Processing daily income...
+                <div class="panel">
+                    <h3>Your Properties</h3>
+                    <div id="propertiesList" class="properties-grid">
+                        <!-- Properties will be added here dynamically -->
                     </div>
-                    <button class="btn btn-success" onclick="collectDailyIncome()">Collect Daily Income</button>
-                </div>
-
-                <div class="game-section">
-                    <h2 class="section-title">Current Offer</h2>
-                    <div class="offer-display" id="currentOffer">
-                        No offer available yet
+                    
+                    <h3 style="margin-top: 20px;">Event Log</h3>
+                    <div id="eventLog" class="event-log">
+                        <!-- Log entries will be added here -->
                     </div>
-                    <div class="actions">
-                        <button class="btn btn-success" onclick="buyOffer()">Buy</button>
-                        <button class="btn btn-warning" onclick="negotiateOffer()">Negotiate</button>
-                        <button class="btn btn-danger" onclick="skipOffer()">Skip</button>
-                    </div>
-                    <div id="negotiationSection" class="negotiation-section hidden">
-                        <h3>Negotiation</h3>
-                        <p>Negotiated Price: <span id="negotiatedPrice">$0</span></p>
-                        <button class="btn btn-success" onclick="acceptNegotiation()">Accept</button>
-                        <button class="btn btn-danger" onclick="cancelNegotiation()">Cancel</button>
-                    </div>
-                </div>
-
-                <div class="game-section">
-                    <h2 class="section-title">Your Properties</h2>
-                    <div class="properties-list" id="propertiesList">
-                        No properties yet
-                    </div>
-                    <button class="btn btn-warning" onclick="sellRandomProperty()">Sell Random Property</button>
-                </div>
-
-                <div class="game-section">
-                    <h2 class="section-title">Auction</h2>
-                    <div class="offer-display" id="auctionInfo">
-                        No auction active
-                    </div>
-                    <div class="input-group">
-                        <label for="bidAmount">Your Bid:</label>
-                        <input type="number" id="bidAmount" placeholder="Enter bid amount">
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-primary" onclick="placeBid()">Place Bid</button>
-                        <button class="btn btn-danger" onclick="skipAuction()">Skip Auction</button>
-                    </div>
-                </div>
-
-                <div class="game-section">
-                    <h2 class="section-title">Event Log</h2>
-                    <div class="event-log" id="eventLog">
-                        <!-- Events will appear here -->
-                    </div>
-                    <button class="btn btn-primary" onclick="nextDay()">Next Day</button>
                 </div>
             </div>
         </div>
@@ -379,15 +375,14 @@
         // Game state
         let gameState = {
             username: '',
-            password: '',
             balance: 1000,
             day: 1,
             properties: [],
             eventLog: [],
-            currentOffer: null,
-            currentAuction: null,
-            isNegotiating: false,
-            negotiatedPrice: 0
+            currentEvent: null,
+            events: [],
+            currentEventIndex: 0,
+            dailyIncome: 0
         };
 
         // Units mapping
@@ -401,415 +396,506 @@
         };
 
         // DOM Elements
-        const loginScreen = document.getElementById('login-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const loginForm = document.getElementById('loginForm');
-        const currentDayEl = document.getElementById('currentDay');
-        const balanceEl = document.getElementById('balance');
-        const propertyCountEl = document.getElementById('propertyCount');
-        const dailyIncomeInfoEl = document.getElementById('dailyIncomeInfo');
-        const currentOfferEl = document.getElementById('currentOffer');
-        const propertiesListEl = document.getElementById('propertiesList');
-        const eventLogEl = document.getElementById('eventLog');
-        const negotiationSection = document.getElementById('negotiationSection');
-        const negotiatedPriceEl = document.getElementById('negotiatedPrice');
-        const auctionInfoEl = document.getElementById('auctionInfo');
-        const bidAmountEl = document.getElementById('bidAmount');
+        const loginScreen = document.getElementById('loginScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const balanceDisplay = document.getElementById('balance');
+        const dayDisplay = document.getElementById('dayDisplay');
+        const propertyCountDisplay = document.getElementById('propertyCount');
+        const eventLogDisplay = document.getElementById('eventLog');
+        const currentEventDisplay = document.getElementById('currentEvent');
+        const propertiesList = document.getElementById('propertiesList');
+        const buyBtn = document.getElementById('buyBtn');
+        const negotiateBtn = document.getElementById('negotiateBtn');
+        const declineBtn = document.getElementById('declineBtn');
+        const acceptNegotiation = document.getElementById('acceptNegotiation');
+        const rejectNegotiation = document.getElementById('rejectNegotiation');
+        const negotiationPanel = document.getElementById('negotiationPanel');
+        const auctionPanel = document.getElementById('auctionPanel');
+        const bidInput = document.getElementById('bidInput');
+        const placeBid = document.getElementById('placeBid');
+        const skipAuction = document.getElementById('skipAuction');
+        const currentBid = document.getElementById('currentBid');
+        const eventsRemaining = document.getElementById('eventsRemaining');
+        const eventProgress = document.getElementById('eventProgress');
+        const incomeDisplay = document.getElementById('income');
 
-        // Login functionality
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            if (localStorage.getItem('investorGameUser')) {
-                const savedUser = JSON.parse(localStorage.getItem('investorGameUser'));
-                if (savedUser.username === username && savedUser.password === password) {
-                    gameState = savedUser;
-                    showGameScreen();
-                } else {
-                    alert('Invalid credentials');
-                }
-            } else {
-                gameState.username = username;
-                gameState.password = password;
-                localStorage.setItem('investorGameUser', JSON.stringify(gameState));
+        // Initialize game
+        function initGame() {
+            loadGame();
+            if (gameState.username) {
                 showGameScreen();
+                startNewDay();
             }
+        }
+
+        // Load game state from localStorage
+        function loadGame() {
+            const saved = localStorage.getItem('investorGame');
+            if (saved) {
+                gameState = JSON.parse(saved);
+            }
+        }
+
+        // Save game state to localStorage
+        function saveGame() {
+            localStorage.setItem('investorGame', JSON.stringify(gameState));
+        }
+
+        // Login function
+        loginBtn.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!username) {
+                alert('Please enter a username');
+                return;
+            }
+
+            // Load existing user or create new
+            let users = JSON.parse(localStorage.getItem('investorUsers') || '{}');
+            
+            if (users[username]) {
+                // Existing user
+                if (users[username].password !== password) {
+                    alert('Wrong password');
+                    return;
+                }
+                gameState = users[username];
+                gameState.username = username;
+            } else {
+                // New user
+                gameState = {
+                    username: username,
+                    balance: 1000,
+                    day: 1,
+                    properties: [],
+                    eventLog: [],
+                    password: password
+                };
+                users[username] = gameState;
+            }
+            
+            localStorage.setItem('investorUsers', JSON.stringify(users));
+            saveGame();
+            showGameScreen();
+            startNewDay();
         });
 
+        // Show game screen
         function showGameScreen() {
-            loginScreen.classList.remove('active');
-            gameScreen.classList.add('active');
+            loginScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+        }
+
+        // Start a new day
+        function startNewDay() {
+            calculateDailyIncome();
+            generateEvents();
             updateDisplay();
-            generateNewOffer();
-            generateAuction();
+            processNextEvent();
         }
 
-        function updateDisplay() {
-            currentDayEl.textContent = gameState.day;
-            balanceEl.textContent = `$${gameState.balance}`;
-            propertyCountEl.textContent = gameState.properties.length;
-            
-            // Update properties list
-            if (gameState.properties.length === 0) {
-                propertiesListEl.innerHTML = '<div class="property-item">No properties yet</div>';
-            } else {
-                propertiesListEl.innerHTML = '';
-                gameState.properties.forEach((property, index) => {
-                    const propertyDiv = document.createElement('div');
-                    propertyDiv.className = 'property-item';
-                    
-                    let displayText = `${property.type}: `;
-                    if (property.type === 'gold') displayText += `${property.grams}g`;
-                    else if (property.type === 'company') displayText += `${property.shares} shares`;
-                    else if (property.type === 'factory') displayText += `${property.capacity} capacity`;
-                    else displayText += `${property.quantity || 1} ${units[property.type]}`;
-                    
-                    propertyDiv.innerHTML = `
-                        <span>${displayText}</span>
-                        <span>Spent: $${property.spent}</span>
-                    `;
-                    propertiesListEl.appendChild(propertyDiv);
-                });
+        // Calculate daily income
+        function calculateDailyIncome() {
+            const baseIncome = 100;
+            const bonus = gameState.properties.length * 50;
+            gameState.dailyIncome = baseIncome + bonus;
+            gameState.balance += gameState.dailyIncome;
+            addLog(`Daily income: $${gameState.dailyIncome} (Base $${baseIncome} + $${bonus} bonus)`, 'success');
+        }
+
+        // Generate daily events
+        function generateEvents() {
+            const eventCount = Math.floor(Math.random() * 4) + 2; // 2-5 events
+            gameState.events = [];
+            for (let i = 0; i < eventCount; i++) {
+                gameState.events.push(generateRandomEvent());
             }
-            
-            // Update event log
-            eventLogEl.innerHTML = '';
-            gameState.eventLog.slice(-10).forEach(event => {
-                const eventDiv = document.createElement('div');
-                eventDiv.className = 'event-item';
-                eventDiv.textContent = event;
-                eventLogEl.appendChild(eventDiv);
-            });
+            gameState.currentEventIndex = 0;
+            eventsRemaining.textContent = gameState.events.length;
+            updateEventProgress();
         }
 
-        function generateNewOffer() {
+        // Generate random event
+        function generateRandomEvent() {
+            const eventType = ['offer', 'sell', 'auction'][Math.floor(Math.random() * 3)];
+            
+            switch(eventType) {
+                case 'offer':
+                    return generateOffer();
+                case 'sell':
+                    return { type: 'sell', ...generateSellOffer() };
+                case 'auction':
+                    return { type: 'auction', ...generateAuction() };
+            }
+        }
+
+        // Generate offer
+        function generateOffer() {
             const types = ['land', 'property', 'gold', 'factory', 'company', 'island'];
             const type = types[Math.floor(Math.random() * types.length)];
             
-            let offer;
+            let offer = { type: 'offer', subtype: type };
+            
             switch(type) {
                 case 'land':
-                    const landPrice = Math.floor(Math.random() * 401) + 100;
-                    offer = {
-                        type: type,
-                        price: landPrice,
-                        description: `Land offer: Buy 1 plot for $${landPrice}`
-                    };
+                    offer.price = Math.floor(Math.random() * 401) + 100;
+                    offer.description = `Land offer: Buy 1 plot for $${offer.price}`;
                     break;
                 case 'property':
-                    const propPrice = Math.floor(Math.random() * 1501) + 500;
-                    offer = {
-                        type: type,
-                        price: propPrice,
-                        description: `Property offer: Buy 1 unit for $${propPrice}`
-                    };
+                    offer.price = Math.floor(Math.random() * 1501) + 500;
+                    offer.description = `Property offer: Buy 1 unit for $${offer.price}`;
                     break;
                 case 'gold':
-                    const grams = Math.floor(Math.random() * 91) + 10;
-                    const ppg = Math.floor(Math.random() * 51) + 50;
-                    const total = grams * ppg;
-                    offer = {
-                        type: type,
-                        price: total,
-                        grams: grams,
-                        pricePerGram: ppg,
-                        description: `Gold offer: ${grams}g at $${ppg}/g for total $${total}`
-                    };
+                    offer.grams = Math.floor(Math.random() * 91) + 10;
+                    offer.pricePerGram = Math.floor(Math.random() * 51) + 50;
+                    offer.price = offer.grams * offer.pricePerGram;
+                    offer.description = `Gold offer: ${offer.grams}g at $${offer.pricePerGram}/g for total $${offer.price}`;
                     break;
                 case 'factory':
-                    const capacity = Math.floor(Math.random() * 5) + 1;
-                    const factoryPrice = capacity * Math.floor(Math.random() * 4001) + 1000;
-                    offer = {
-                        type: type,
-                        price: factoryPrice,
-                        capacity: capacity,
-                        description: `Factory offer: Buy factory with capacity ${capacity} for $${factoryPrice}`
-                    };
+                    offer.capacity = Math.floor(Math.random() * 5) + 1;
+                    offer.price = offer.capacity * (Math.floor(Math.random() * 4001) + 1000);
+                    offer.description = `Factory offer: Buy factory with capacity ${offer.capacity} for $${offer.price}`;
                     break;
                 case 'company':
-                    const shares = Math.floor(Math.random() * 41) + 10;
-                    const pricePerShare = Math.floor(Math.random() * 301) + 200;
-                    const companyTotal = shares * pricePerShare;
-                    offer = {
-                        type: type,
-                        price: companyTotal,
-                        shares: shares,
-                        pricePerShare: pricePerShare,
-                        description: `Company offer: ${shares} shares at $${pricePerShare}/share for total $${companyTotal}`
-                    };
+                    offer.shares = Math.floor(Math.random() * 41) + 10;
+                    offer.pricePerShare = Math.floor(Math.random() * 301) + 200;
+                    offer.price = offer.shares * offer.pricePerShare;
+                    offer.description = `Company offer: ${offer.shares} shares at $${offer.pricePerShare}/share for total $${offer.price}`;
                     break;
                 case 'island':
                     const sizes = ['small', 'medium', 'large'];
-                    const size = sizes[Math.floor(Math.random() * sizes.length)];
-                    const multipliers = {'small': 500, 'medium': 2000, 'large': 5000};
-                    const islandPrice = multipliers[size] * Math.floor(Math.random() * 3) + 1;
-                    offer = {
-                        type: type,
-                        price: islandPrice,
-                        size: size,
-                        description: `Island offer: Buy a ${size} island for $${islandPrice}`
-                    };
+                    offer.size = sizes[Math.floor(Math.random() * sizes.length)];
+                    const multipliers = { 'small': 500, 'medium': 2000, 'large': 5000 };
+                    offer.price = multipliers[offer.size] * (Math.floor(Math.random() * 3) + 1);
+                    offer.description = `Island offer: Buy a ${offer.size} island for $${offer.price}`;
                     break;
             }
             
-            gameState.currentOffer = offer;
-            currentOfferEl.textContent = offer.description;
+            return offer;
         }
 
+        // Generate sell offer
+        function generateSellOffer() {
+            const types = ['land', 'property', 'gold', 'factory', 'company', 'island'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            
+            let offer = { subtype: type };
+            
+            switch(type) {
+                case 'gold':
+                    offer.amount = Math.floor(Math.random() * 91) + 10;
+                    offer.pricePerGram = Math.floor(Math.random() * 81) + 40;
+                    offer.totalPrice = offer.amount * offer.pricePerGram;
+                    offer.description = `Gold sell: ${offer.amount}g at $${offer.pricePerGram}/g for total $${offer.totalPrice}`;
+                    break;
+                case 'company':
+                    offer.amount = Math.floor(Math.random() * 41) + 10;
+                    offer.pricePerShare = Math.floor(Math.random() * 251) + 150;
+                    offer.totalPrice = offer.amount * offer.pricePerShare;
+                    offer.description = `Company sell: ${offer.amount} shares at $${offer.pricePerShare}/share for total $${offer.totalPrice}`;
+                    break;
+                case 'factory':
+                    offer.amount = Math.floor(Math.random() * 5) + 1;
+                    offer.pricePerUnit = Math.floor(Math.random() * 1201) + 800;
+                    offer.totalPrice = offer.amount * offer.pricePerUnit;
+                    offer.description = `Factory sell: capacity ${offer.amount} at $${offer.pricePerUnit}/unit for total $${offer.totalPrice}`;
+                    break;
+                case 'island':
+                    offer.amount = 1;
+                    offer.totalPrice = Math.floor(Math.random() * 4001) + 1000;
+                    offer.description = `Island sell: 1 island at $${offer.totalPrice} total`;
+                    break;
+                default:
+                    offer.amount = 1;
+                    offer.totalPrice = Math.floor(Math.random() * 321) + 80;
+                    offer.description = `Buyer offers $${offer.totalPrice} for your 1 ${units[type]}`;
+                    break;
+            }
+            
+            return offer;
+        }
+
+        // Generate auction
         function generateAuction() {
             const types = ['land', 'property', 'gold', 'factory', 'company', 'island'];
             const type = types[Math.floor(Math.random() * types.length)];
-            const startPrice = type === 'gold' || type === 'factory' ? 
-                Math.floor(Math.random() * 81) + 20 : 
-                Math.floor(Math.random() * 201) + 100;
             
-            gameState.currentAuction = {
-                type: type,
+            const startPrice = type === 'gold' || type === 'factory' 
+                ? Math.floor(Math.random() * 81) + 20 
+                : Math.floor(Math.random() * 201) + 100;
+            
+            return {
+                subtype: type,
                 startPrice: startPrice,
                 description: `Auction for ${type} starts at $${startPrice}`
             };
-            auctionInfoEl.textContent = gameState.currentAuction.description;
         }
 
-        function collectDailyIncome() {
-            const baseIncome = 100;
-            const bonus = gameState.properties.length * 50;
-            const income = baseIncome + bonus;
+        // Process next event
+        function processNextEvent() {
+            if (gameState.currentEventIndex >= gameState.events.length) {
+                // Day complete
+                gameState.day++;
+                addLog('Day complete! Starting new day...', 'success');
+                setTimeout(startNewDay, 2000);
+                return;
+            }
+
+            gameState.currentEvent = gameState.events[gameState.currentEventIndex];
+            displayCurrentEvent();
+            eventsRemaining.textContent = gameState.events.length - gameState.currentEventIndex;
+            updateEventProgress();
+        }
+
+        // Display current event
+        function displayCurrentEvent() {
+            const event = gameState.currentEvent;
             
-            gameState.balance += income;
-            gameState.eventLog.push(`Day ${gameState.day} - Daily income: $${income} (Base $${baseIncome} + $${bonus} bonus)`);
+            if (event.type === 'offer') {
+                currentEventDisplay.innerHTML = `<div class="offer-text">${event.description}</div>`;
+                negotiationPanel.classList.add('hidden');
+                auctionPanel.classList.add('hidden');
+            } else if (event.type === 'sell') {
+                currentEventDisplay.innerHTML = `<div class="offer-text">${event.description}</div>`;
+                negotiationPanel.classList.add('hidden');
+                auctionPanel.classList.add('hidden');
+            } else if (event.type === 'auction') {
+                currentEventDisplay.innerHTML = `<div class="offer-text">${event.description}</div>`;
+                currentBid.textContent = event.startPrice;
+                bidInput.value = '';
+                negotiationPanel.classList.add('hidden');
+                auctionPanel.classList.remove('hidden');
+            }
+        }
+
+        // Update event progress bar
+        function updateEventProgress() {
+            const progress = ((gameState.currentEventIndex) / gameState.events.length) * 100;
+            eventProgress.style.width = `${progress}%`;
+        }
+
+        // Buy action
+        buyBtn.addEventListener('click', () => {
+            if (!gameState.currentEvent || gameState.currentEvent.type !== 'offer') return;
             
-            dailyIncomeInfoEl.textContent = `Daily income collected: $${income}. New balance: $${gameState.balance}`;
-            updateDisplay();
-        }
-
-        function buyOffer() {
-            if (!gameState.currentOffer) {
-                alert('No offer available');
-                return;
-            }
-
-            const offer = gameState.currentOffer;
-            if (gameState.balance < offer.price) {
-                alert('Not enough balance to buy this offer');
-                return;
-            }
-
-            gameState.balance -= offer.price;
-
-            // Add to properties
-            let propertyExists = false;
-            for (let prop of gameState.properties) {
-                if (prop.type === offer.type) {
-                    if (offer.type === 'gold') prop.grams += offer.grams || 0;
-                    else if (offer.type === 'company') prop.shares += offer.shares || 0;
-                    else if (offer.type === 'factory') prop.capacity += offer.capacity || 0;
-                    else prop.quantity = (prop.quantity || 0) + 1;
-                    prop.spent += offer.price;
-                    propertyExists = true;
-                    break;
+            const event = gameState.currentEvent;
+            if (gameState.balance >= event.price) {
+                gameState.balance -= event.price;
+                
+                // Add to properties
+                const existingProperty = gameState.properties.find(p => p.type === event.subtype);
+                if (existingProperty) {
+                    if (event.subtype === 'gold') {
+                        existingProperty.grams += event.grams || 0;
+                    } else if (event.subtype === 'company') {
+                        existingProperty.shares += event.shares || 0;
+                    } else if (event.subtype === 'factory') {
+                        existingProperty.capacity += event.capacity || 0;
+                    } else {
+                        existingProperty.quantity = (existingProperty.quantity || 0) + 1;
+                    }
+                    existingProperty.spent += event.price;
+                } else {
+                    const property = {
+                        type: event.subtype,
+                        spent: event.price
+                    };
+                    if (event.subtype === 'gold') property.grams = event.grams;
+                    else if (event.subtype === 'company') property.shares = event.shares;
+                    else if (event.subtype === 'factory') property.capacity = event.capacity;
+                    else property.quantity = 1;
+                    
+                    gameState.properties.push(property);
                 }
-            }
-
-            if (!propertyExists) {
-                const newProp = {
-                    type: offer.type,
-                    spent: offer.price
-                };
-                if (offer.type === 'gold') newProp.grams = offer.grams;
-                else if (offer.type === 'company') newProp.shares = offer.shares;
-                else if (offer.type === 'factory') newProp.capacity = offer.capacity;
-                else newProp.quantity = 1;
-                gameState.properties.push(newProp);
-            }
-
-            gameState.eventLog.push(`Bought ${offer.type} for $${offer.price}`);
-            generateNewOffer();
-            updateDisplay();
-        }
-
-        function negotiateOffer() {
-            if (!gameState.currentOffer) {
-                alert('No offer available');
-                return;
-            }
-
-            const discount = Math.floor(Math.random() * 26) + 5; // 5-30%
-            gameState.negotiatedPrice = Math.floor(gameState.currentOffer.price * (1 - discount / 100));
-            negotiationSection.classList.remove('hidden');
-            negotiatedPriceEl.textContent = `$${gameState.negotiatedPrice}`;
-            gameState.isNegotiating = true;
-        }
-
-        function acceptNegotiation() {
-            if (!gameState.isNegotiating) return;
-
-            const offer = gameState.currentOffer;
-            if (gameState.balance < gameState.negotiatedPrice) {
-                alert('Not enough balance for negotiated price');
-                cancelNegotiation();
-                return;
-            }
-
-            gameState.balance -= gameState.negotiatedPrice;
-
-            // Add to properties
-            let propertyExists = false;
-            for (let prop of gameState.properties) {
-                if (prop.type === offer.type) {
-                    if (offer.type === 'gold') prop.grams += offer.grams || 0;
-                    else if (offer.type === 'company') prop.shares += offer.shares || 0;
-                    else if (offer.type === 'factory') prop.capacity += offer.capacity || 0;
-                    else prop.quantity = (prop.quantity || 0) + 1;
-                    prop.spent += gameState.negotiatedPrice;
-                    propertyExists = true;
-                    break;
-                }
-            }
-
-            if (!propertyExists) {
-                const newProp = {
-                    type: offer.type,
-                    spent: gameState.negotiatedPrice
-                };
-                if (offer.type === 'gold') newProp.grams = offer.grams;
-                else if (offer.type === 'company') newProp.shares = offer.shares;
-                else if (offer.type === 'factory') newProp.capacity = offer.capacity;
-                else newProp.quantity = 1;
-                gameState.properties.push(newProp);
-            }
-
-            gameState.eventLog.push(`Bought ${offer.type} for negotiated price $${gameState.negotiatedPrice}`);
-            generateNewOffer();
-            cancelNegotiation();
-            updateDisplay();
-        }
-
-        function cancelNegotiation() {
-            gameState.isNegotiating = false;
-            negotiationSection.classList.add('hidden');
-        }
-
-        function skipOffer() {
-            generateNewOffer();
-            gameState.eventLog.push('Skipped current offer');
-            updateDisplay();
-        }
-
-        function sellRandomProperty() {
-            if (gameState.properties.length === 0) {
-                alert('No properties to sell');
-                return;
-            }
-
-            const propertyIndex = Math.floor(Math.random() * gameState.properties.length);
-            const property = gameState.properties[propertyIndex];
-
-            let sellPrice;
-            if (property.type === 'gold') {
-                const ppg = Math.floor(Math.random() * 81) + 40;
-                sellPrice = property.grams * ppg;
-                alert(`Gold sell: ${property.grams}g at $${ppg}/g for total $${sellPrice}`);
-            } else if (property.type === 'company') {
-                const pps = Math.floor(Math.random() * 251) + 150;
-                sellPrice = property.shares * pps;
-                alert(`Company sell: ${property.shares} shares at $${pps}/share for total $${sellPrice}`);
-            } else if (property.type === 'factory') {
-                const pf = Math.floor(Math.random() * 1201) + 800;
-                sellPrice = property.capacity * pf;
-                alert(`Factory sell: capacity ${property.capacity} at $${pf}/unit for total $${sellPrice}`);
-            } else if (property.type === 'island') {
-                const pi = Math.floor(Math.random() * 4001) + 1000;
-                sellPrice = pi;
-                alert(`Island sell: 1 island at $${pi} total`);
+                
+                addLog(`Bought ${event.subtype} for $${event.price}`, 'success');
+                gameState.currentEventIndex++;
+                saveGame();
+                updateDisplay();
+                setTimeout(processNextEvent, 1500);
             } else {
-                sellPrice = (property.quantity || 1) * (Math.floor(Math.random() * 321) + 80);
-                alert(`Sell: ${(property.quantity || 1)} ${units[property.type]} for $${sellPrice}`);
+                addLog('Not enough balance to buy!', 'error');
             }
+        });
 
-            gameState.balance += sellPrice;
-            gameState.properties.splice(propertyIndex, 1);
-            gameState.eventLog.push(`Sold ${property.type} for $${sellPrice}`);
-            updateDisplay();
-        }
+        // Negotiate action
+        negotiateBtn.addEventListener('click', () => {
+            if (!gameState.currentEvent || gameState.currentEvent.type !== 'offer') return;
+            
+            const event = gameState.currentEvent;
+            const discount = Math.floor(Math.random() * 26) + 5; // 5-30%
+            const negotiatedPrice = Math.round(event.price * (1 - discount / 100));
+            
+            document.getElementById('negotiatedPrice').textContent = negotiatedPrice;
+            negotiationPanel.classList.remove('hidden');
+        });
 
-        function placeBid() {
-            const bid = parseInt(bidAmountEl.value);
-            if (!bid || bid < gameState.currentAuction.startPrice || bid > gameState.balance) {
-                alert('Invalid bid amount');
+        // Accept negotiation
+        acceptNegotiation.addEventListener('click', () => {
+            const event = gameState.currentEvent;
+            const discount = Math.floor(Math.random() * 26) + 5; // 5-30%
+            const negotiatedPrice = Math.round(event.price * (1 - discount / 100));
+            
+            if (gameState.balance >= negotiatedPrice) {
+                gameState.balance -= negotiatedPrice;
+                
+                // Add to properties (same logic as buy)
+                const existingProperty = gameState.properties.find(p => p.type === event.subtype);
+                if (existingProperty) {
+                    if (event.subtype === 'gold') {
+                        existingProperty.grams += event.grams || 0;
+                    } else if (event.subtype === 'company') {
+                        existingProperty.shares += event.shares || 0;
+                    } else if (event.subtype === 'factory') {
+                        existingProperty.capacity += event.capacity || 0;
+                    } else {
+                        existingProperty.quantity = (existingProperty.quantity || 0) + 1;
+                    }
+                    existingProperty.spent += negotiatedPrice;
+                } else {
+                    const property = {
+                        type: event.subtype,
+                        spent: negotiatedPrice
+                    };
+                    if (event.subtype === 'gold') property.grams = event.grams;
+                    else if (event.subtype === 'company') property.shares = event.shares;
+                    else if (event.subtype === 'factory') property.capacity = event.capacity;
+                    else property.quantity = 1;
+                    
+                    gameState.properties.push(property);
+                }
+                
+                addLog(`Bought ${event.subtype} for $${negotiatedPrice} (negotiated from $${event.price})`, 'success');
+                gameState.currentEventIndex++;
+                saveGame();
+                updateDisplay();
+                negotiationPanel.classList.add('hidden');
+                setTimeout(processNextEvent, 1500);
+            } else {
+                addLog('Not enough balance after negotiation!', 'error');
+                negotiationPanel.classList.add('hidden');
+            }
+        });
+
+        // Reject negotiation
+        rejectNegotiation.addEventListener('click', () => {
+            negotiationPanel.classList.add('hidden');
+        });
+
+        // Decline action
+        declineBtn.addEventListener('click', () => {
+            if (!gameState.currentEvent) return;
+            addLog('Offer declined', 'warning');
+            gameState.currentEventIndex++;
+            saveGame();
+            setTimeout(processNextEvent, 1500);
+        });
+
+        // Place bid in auction
+        placeBid.addEventListener('click', () => {
+            const bid = parseInt(bidInput.value);
+            const event = gameState.currentEvent;
+            
+            if (isNaN(bid) || bid < event.startPrice) {
+                addLog('Invalid bid amount!', 'error');
                 return;
             }
-
+            
+            if (bid > gameState.balance) {
+                addLog('Not enough balance for bid!', 'error');
+                return;
+            }
+            
             gameState.balance -= bid;
-
-            // Add to properties
-            const newProp = {
-                type: gameState.currentAuction.type,
+            
+            // Add property
+            const property = {
+                type: event.subtype,
                 spent: bid
             };
             
-            if (gameState.currentAuction.type === 'gold') newProp.grams = Math.floor(Math.random() * 91) + 10;
-            else if (gameState.currentAuction.type === 'company') newProp.shares = Math.floor(Math.random() * 41) + 10;
-            else if (gameState.currentAuction.type === 'factory') newProp.capacity = Math.floor(Math.random() * 5) + 1;
-            else newProp.quantity = 1;
+            if (event.subtype === 'gold') property.grams = Math.floor(Math.random() * 91) + 10;
+            else if (event.subtype === 'company') property.shares = Math.floor(Math.random() * 41) + 10;
+            else if (event.subtype === 'factory') property.capacity = Math.floor(Math.random() * 5) + 1;
+            else property.quantity = 1;
             
-            gameState.properties.push(newProp);
-            gameState.eventLog.push(`Won auction for ${gameState.currentAuction.type} with bid $${bid}`);
+            gameState.properties.push(property);
+            addLog(`Won auction for ${event.subtype} with bid $${bid}`, 'success');
             
-            generateAuction();
-            bidAmountEl.value = '';
+            gameState.currentEventIndex++;
+            saveGame();
             updateDisplay();
+            auctionPanel.classList.add('hidden');
+            setTimeout(processNextEvent, 1500);
+        });
+
+        // Skip auction
+        skipAuction.addEventListener('click', () => {
+            addLog('Auction skipped', 'warning');
+            gameState.currentEventIndex++;
+            saveGame();
+            auctionPanel.classList.add('hidden');
+            setTimeout(processNextEvent, 1500);
+        });
+
+        // Add log entry
+        function addLog(message, type = 'info') {
+            gameState.eventLog.push({ message, type, timestamp: new Date() });
+            if (gameState.eventLog.length > 50) {
+                gameState.eventLog.shift(); // Keep only last 50 entries
+            }
+            updateLogDisplay();
         }
 
-        function skipAuction() {
-            generateAuction();
-            gameState.eventLog.push('Skipped auction');
-            updateDisplay();
-        }
-
-        function nextDay() {
-            gameState.day++;
-            gameState.eventLog.push(`Day ${gameState.day} begins`);
-            
-            // Merge gold properties
-            mergeGoldProperties();
-            
-            updateDisplay();
-            generateNewOffer();
-            generateAuction();
-        }
-
-        function mergeGoldProperties() {
-            let totalGold = 0;
-            let otherProperties = [];
-            
-            gameState.properties.forEach(prop => {
-                if (prop.type === 'gold') {
-                    totalGold += prop.grams;
-                } else {
-                    otherProperties.push(prop);
-                }
+        // Update log display
+        function updateLogDisplay() {
+            eventLogDisplay.innerHTML = '';
+            gameState.eventLog.slice().reverse().forEach(entry => {
+                const div = document.createElement('div');
+                div.className = `log-entry ${entry.type}`;
+                div.textContent = entry.message;
+                eventLogDisplay.appendChild(div);
             });
-            
-            if (totalGold > 0) {
-                otherProperties.push({
-                    type: 'gold',
-                    grams: totalGold,
-                    spent: 0
-                });
-            }
-            
-            gameState.properties = otherProperties;
         }
 
-        // Auto-save game state
-        setInterval(() => {
-            if (gameState.username) {
-                localStorage.setItem('investorGameUser', JSON.stringify(gameState));
-            }
-        }, 5000);
+        // Update display
+        function updateDisplay() {
+            balanceDisplay.textContent = `$${gameState.balance}`;
+            dayDisplay.textContent = gameState.day;
+            propertyCountDisplay.textContent = gameState.properties.length;
+            incomeDisplay.textContent = `$${gameState.dailyIncome}`;
+            updatePropertiesDisplay();
+            updateLogDisplay();
+        }
+
+        // Update properties display
+        function updatePropertiesDisplay() {
+            propertiesList.innerHTML = '';
+            gameState.properties.forEach(property => {
+                const div = document.createElement('div');
+                div.className = 'property-card';
+                
+                let amount = 0;
+                if (property.type === 'gold') amount = property.grams;
+                else if (property.type === 'company') amount = property.shares;
+                else if (property.type === 'factory') amount = property.capacity;
+                else amount = property.quantity || 1;
+                
+                div.innerHTML = `
+                    <div class="property-type">${property.type}</div>
+                    <div class="property-amount">${amount} ${units[property.type]}</div>
+                    <div style="font-size: 0.8rem; color: var(--gray);">Spent: $${property.spent}</div>
+                `;
+                propertiesList.appendChild(div);
+            });
+        }
+
+        // Initialize the game
+        window.onload = initGame;
     </script>
 </body>
 </html>
