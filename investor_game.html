@@ -6,14 +6,14 @@
     <title>Investor Game</title>
     <style>
         :root {
-            --primary: #4a6fa5;
-            --secondary: #6b8cbc;
-            --accent: #ff6b6b;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
         }
         
         * {
@@ -24,7 +24,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c, #2a5298);
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
             color: var(--light);
             min-height: 100vh;
             padding: 20px;
@@ -36,7 +36,7 @@
         .container {
             width: 100%;
             max-width: 900px;
-            background: rgba(25, 35, 60, 0.85);
+            background: rgba(25, 35, 60, 0.9);
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             overflow: hidden;
@@ -168,6 +168,7 @@
             justify-content: center;
             gap: 10px;
             margin-top: 15px;
+            flex-wrap: wrap;
         }
         
         .property-list {
@@ -271,7 +272,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Investor Game</h1>
+            <h1>💰 Investor Game</h1>
             <p>Build your empire one investment at a time!</p>
         </header>
         
@@ -389,13 +390,13 @@
 
         // Load users from localStorage
         function loadUsers() {
-            const data = localStorage.getItem('businessTycoonUsers');
+            const data = localStorage.getItem('investorGameUsers');
             return data ? JSON.parse(data) : {};
         }
 
         // Save users to localStorage
         function saveUsers() {
-            localStorage.setItem('businessTycoonUsers', JSON.stringify(gameState.users));
+            localStorage.setItem('investorGameUsers', JSON.stringify(gameState.users));
         }
 
         // Get user data
@@ -470,6 +471,11 @@
             loginScreen.classList.add('hidden');
             gameScreen.classList.remove('hidden');
             renderGame();
+            
+            // Enable income button after a short delay
+            setTimeout(() => {
+                incomeBtn.disabled = false;
+            }, 1500);
         }
 
         // Render game state
@@ -557,6 +563,11 @@
                     createAuctionEvent();
                 }
             }
+            
+            // Enable next day button after all events are created
+            setTimeout(() => {
+                nextDayBtn.disabled = false;
+            }, 1000);
         }
 
         // Create offer event
@@ -670,7 +681,7 @@
                 const price = Math.floor(Math.random() * 1501) + 500; // 500-2000
                 return {
                     message: `Property offer: Buy 1 unit for $${price}`,
-                    data: { type: ttype, price }
+                     { type: ttype, price }
                 };
             }
             if (ttype === 'gold') {
@@ -679,7 +690,7 @@
                 const total = grams * ppg;
                 return {
                     message: `Gold offer: ${grams}g at $${ppg}/g for total $${total}`,
-                    data: { type: 'gold', grams, price_per_gram: ppg, price: total }
+                     { type: 'gold', grams, price_per_gram: ppg, price: total }
                 };
             }
             if (ttype === 'factory') {
@@ -687,7 +698,7 @@
                 const price = capacity * (Math.floor(Math.random() * 4001) + 1000);
                 return {
                     message: `Factory offer: Buy factory with capacity ${capacity} for $${price}`,
-                    data: { type: ttype, capacity, price }
+                     { type: ttype, capacity, price }
                 };
             }
             if (ttype === 'company') {
@@ -696,7 +707,7 @@
                 const total = shares * pps;
                 return {
                     message: `Company offer: ${shares} shares at $${pps}/share for total $${total}`,
-                    data: { type: ttype, shares, price_per_share: pps, price: total }
+                     { type: ttype, shares, price_per_share: pps, price: total }
                 };
             }
             // Island
@@ -706,7 +717,7 @@
             const price = multipliers[size] * (Math.floor(Math.random() * 3) + 1);
             return {
                 message: `Island offer: Buy a ${size} island for $${price}`,
-                data: { type: ttype, size, price }
+                 { type: ttype, size, price }
             };
         }
 
