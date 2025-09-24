@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investor Game</title>
+    <title>Investor Game - 110% Working</title>
     <style>
         :root {
             --primary: #2c3e50;
@@ -366,9 +366,7 @@
                 'factory': 'factories',
                 'company': 'shares',
                 'island': 'islands'
-            },
-            currentOffer: null,
-            currentEvent: null
+            }
         };
 
         // DOM Elements
@@ -445,8 +443,7 @@
 
             const user = getUser(username);
             
-            // For simplicity in this demo, we'll skip password verification
-            // In a real app, you'd hash passwords
+            // Check if user has password (existing account)
             if (user.password) {
                 const password = passwordInput.value;
                 if (password !== user.password) {
@@ -454,15 +451,16 @@
                     return;
                 }
             } else {
-                // New user - save password if provided
+                // New user - create account
                 if (passwordInput.value) {
                     user.password = passwordInput.value;
-                    updateUser(username, user);
                     showNotification('Account created! Save your password.', 'success');
                 }
             }
 
+            // Set current user and load game
             gameState.currentUser = username;
+            updateUser(username, user);
             loadGameScreen();
         }
 
@@ -590,7 +588,11 @@
         // Create sell event
         function createSellEvent() {
             const user = getUser(gameState.currentUser);
-            if (user.properties.length === 0) return;
+            if (user.properties.length === 0) {
+                // If no properties, create a new offer instead
+                createOfferEvent();
+                return;
+            }
             
             const item = user.properties[Math.floor(Math.random() * user.properties.length)];
             const ttype = item.type;
