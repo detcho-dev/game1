@@ -1,204 +1,915 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Economy Game (Auto)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
-    .container { max-width: 900px; margin: auto; padding: 20px; }
-    .card { background: white; border-radius: 8px; padding: 20px; margin: 10px 0; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    h1,h2,h3 { margin-top: 0; }
-    input, button { padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
-    ul { padding-left: 20px; }
-    .hidden { display: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investor Game</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #6b8cbc;
+            --accent: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2a5298);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(25, 35, 60, 0.85);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        header {
+            background: rgba(15, 25, 50, 0.95);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffd166;
+            text-shadow: 0 0 10px rgba(255, 209, 102, 0.5);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: rgba(20, 30, 50, 0.7);
+            border-bottom: 1px solid var(--secondary);
+        }
+        
+        .info-box {
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .info-label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .info-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffd166;
+        }
+        
+        .screen {
+            padding: 25px;
+            min-height: 400px;
+        }
+        
+        .login-screen {
+            text-align: center;
+        }
+        
+        .input-group {
+            margin: 20px 0;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid var(--secondary);
+            background: rgba(10, 20, 40, 0.7);
+            color: white;
+            font-size: 1.1rem;
+            margin: 10px 0;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #ffd166;
+            box-shadow: 0 0 10px rgba(255, 209, 102, 0.5);
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        
+        button:hover:not(:disabled) {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        button.success {
+            background: var(--success);
+        }
+        
+        button.warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+        
+        button.danger {
+            background: var(--danger);
+        }
+        
+        .offer, .event-log {
+            background: rgba(30, 40, 70, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .offer h3 {
+            color: #ffd166;
+            margin-bottom: 10px;
+        }
+        
+        .offer-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .property-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .property-card {
+            background: rgba(40, 50, 80, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--secondary);
+        }
+        
+        .property-type {
+            font-weight: bold;
+            color: #ffd166;
+            margin-bottom: 5px;
+        }
+        
+        .property-amount {
+            font-size: 1.2rem;
+            color: #4ecdc4;
+        }
+        
+        .log-entry {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            background: rgba(20, 30, 50, 0.5);
+        }
+        
+        .log-entry:nth-child(odd) {
+            background: rgba(25, 35, 60, 0.5);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: var(--success);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .instructions {
+            background: rgba(20, 30, 50, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+        
+        .instructions h3 {
+            color: #ffd166;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .property-list {
+                grid-template-columns: 1fr;
+            }
+            
+            button {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <!-- Login Screen -->
-  <div id="loginScreen" class="card">
-    <h1>Login</h1>
-    <input type="text" id="username" placeholder="Username"><br>
-    <input type="password" id="password" placeholder="Password"><br>
-    <button onclick="login()">Login / Register</button>
-    <p id="loginMsg"></p>
-  </div>
-
-  <!-- Game Screen -->
-  <div id="gameScreen" class="hidden">
-    <div class="card">
-      <h1>Economy Game</h1>
-      <p><b>User:</b> <span id="userName"></span></p>
-      <p><b>Day:</b> <span id="day"></span></p>
-      <p><b>Balance:</b> <span id="balance"></span></p>
+    <div class="container">
+        <header>
+            <h1>Investor Game</h1>
+            <p>Build your empire one investment at a time!</p>
+        </header>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <div class="info-label">Day</div>
+                <div id="day-value" class="info-value">1</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Balance</div>
+                <div id="balance-value" class="info-value">$1000</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Properties</div>
+                <div id="properties-count" class="info-value">0</div>
+            </div>
+        </div>
+        
+        <div class="screen">
+            <!-- Login Screen -->
+            <div id="login-screen" class="login-screen">
+                <h2>Welcome to Investor Game</h2>
+                <p>Create an account or log in to continue</p>
+                
+                <div class="input-group">
+                    <input type="text" id="username-input" placeholder="Enter your username">
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="password-input" placeholder="Enter your password (optional)">
+                </div>
+                
+                <button id="login-btn" class="success">Login / Sign Up</button>
+                
+                <div class="instructions">
+                    <h3>How to Play</h3>
+                    <ul>
+                        <li>Each day you receive income based on your properties</li>
+                        <li>Make investment offers throughout the day</li>
+                        <li>Negotiate prices when possible</li>
+                        <li>Sell properties when opportunities arise</li>
+                        <li>Participate in auctions to acquire rare items</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Game Screen -->
+            <div id="game-screen" class="hidden">
+                <div id="daily-income" class="offer">
+                    <h3>Daily Income</h3>
+                    <p>Calculating your daily income...</p>
+                    <button id="income-btn" class="success" disabled>Receive Income</button>
+                </div>
+                
+                <div id="events-container">
+                    <!-- Events will be dynamically added here -->
+                </div>
+                
+                <div id="properties-section">
+                    <h3>Your Properties</h3>
+                    <div id="properties-list" class="property-list">
+                        <!-- Properties will be dynamically added here -->
+                    </div>
+                </div>
+                
+                <div id="log-section">
+                    <h3>Today's Log</h3>
+                    <div id="event-log" class="event-log">
+                        <!-- Log entries will be added here -->
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="next-day-btn" class="warning" disabled>End Day</button>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <div id="notification" class="notification">Notification</div>
+    
+    <script>
+        // Game state
+        const gameState = {
+            currentUser: null,
+            users: loadUsers(),
+            units: {
+                'land': 'meters',
+                'property': 'units',
+                'gold': 'grams',
+                'factory': 'factories',
+                'company': 'shares',
+                'island': 'islands'
+            },
+            currentOffer: null,
+            currentEvent: null
+        };
 
-    <div class="card">
-      <h2>Result</h2>
-      <div id="result"></div>
-    </div>
+        // DOM Elements
+        const loginScreen = document.getElementById('login-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const usernameInput = document.getElementById('username-input');
+        const passwordInput = document.getElementById('password-input');
+        const loginBtn = document.getElementById('login-btn');
+        const dayValue = document.getElementById('day-value');
+        const balanceValue = document.getElementById('balance-value');
+        const propertiesCount = document.getElementById('properties-count');
+        const dailyIncomeDiv = document.getElementById('daily-income');
+        const incomeBtn = document.getElementById('income-btn');
+        const eventsContainer = document.getElementById('events-container');
+        const propertiesList = document.getElementById('properties-list');
+        const eventLog = document.getElementById('event-log');
+        const nextDayBtn = document.getElementById('next-day-btn');
+        const notification = document.getElementById('notification');
 
-    <div class="card">
-      <h2>Properties</h2>
-      <ul id="propertiesList"></ul>
-    </div>
+        // Load users from localStorage
+        function loadUsers() {
+            const data = localStorage.getItem('businessTycoonUsers');
+            return data ? JSON.parse(data) : {};
+        }
 
-    <div class="card">
-      <h2>Event Log</h2>
-      <ul id="eventLog"></ul>
-    </div>
-  </div>
-</div>
+        // Save users to localStorage
+        function saveUsers() {
+            localStorage.setItem('businessTycoonUsers', JSON.stringify(gameState.users));
+        }
 
-<script>
-// ====== Utils ======
-function formatMoney(amount){
-  return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(amount);
-}
-function loadUsers(){ return JSON.parse(localStorage.getItem("users")||"{}"); }
-function saveUsers(users){ localStorage.setItem("users",JSON.stringify(users)); }
-function getUser(username){
-  let users=loadUsers();
-  if(!users[username]){
-    users[username]={password:null,balance:1000,day:1,properties:[],event_log:[]};
-    saveUsers(users);
-  }
-  return users[username];
-}
-function updateUser(username,data){ let users=loadUsers(); users[username]=data; saveUsers(users); }
+        // Get user data
+        function getUser(username) {
+            if (!gameState.users[username]) {
+                gameState.users[username] = {
+                    password: null,
+                    balance: 1000,
+                    day: 1,
+                    properties: [],
+                    eventLog: []
+                };
+                saveUsers();
+            }
+            return gameState.users[username];
+        }
 
-// ====== Login ======
-let currentUser=null;
-function login(){
-  let username=document.getElementById("username").value.trim();
-  let password=document.getElementById("password").value.trim();
-  if(!username||!password){ document.getElementById("loginMsg").innerText="Enter username and password"; return; }
-  let users=loadUsers(); let user=getUser(username);
-  if(user.password&&user.password!==password){ document.getElementById("loginMsg").innerText="Invalid password"; return; }
-  if(!user.password){ user.password=password; updateUser(username,user); }
-  currentUser=username;
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("gameScreen").classList.remove("hidden");
-  render();
-  startAutoGame(); // start automation after login
-}
+        // Update user data
+        function updateUser(username, data) {
+            gameState.users[username] = data;
+            saveUsers();
+        }
 
-// ====== Game Logic ======
-function dailyIncome(){
-  let user=getUser(currentUser);
-  let base=100; let bonus=user.properties.length*50;
-  let income=base+bonus;
-  user.balance+=income;
-  user.event_log.push(`Daily income: ${formatMoney(income)} (Base ${formatMoney(base)} + Bonus ${formatMoney(bonus)})`);
-  updateUser(currentUser,user);
-}
+        // Show notification
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.className = 'notification show';
+            notification.style.background = type === 'success' ? 
+                'var(--success)' : 
+                type === 'warning' ? 
+                'var(--warning)' : 
+                'var(--danger)';
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
 
-function getOffer(){
-  let types=["land","property","gold","factory","company","island"];
-  let ttype=types[Math.floor(Math.random()*types.length)];
-  let data={}; let msg="";
-  if(ttype==="land"){ let price=rand(100,500); msg=`Land: ${formatMoney(price)}`; data={type:"land",price}; }
-  else if(ttype==="property"){ let price=rand(500,2000); msg=`Property: ${formatMoney(price)}`; data={type:"property",price}; }
-  else if(ttype==="gold"){ let grams=rand(10,100); let ppg=rand(50,100); let total=grams*ppg; msg=`Gold: ${grams}g for ${formatMoney(total)}`; data={type:"gold",grams,price:total}; }
-  else if(ttype==="factory"){ let cap=rand(1,5); let price=cap*rand(1000,5000); msg=`Factory: ${cap} capacity for ${formatMoney(price)}`; data={type:"factory",capacity:cap,price}; }
-  else if(ttype==="company"){ let shares=rand(10,50); let pps=rand(200,500); let total=shares*pps; msg=`Company: ${shares} shares = ${formatMoney(total)}`; data={type:"company",shares,price:total}; }
-  else { let sizes=["small","medium","large"]; let size=sizes[rand(0,2)]; let mult={small:500,medium:2000,large:5000}[size]; let price=mult*rand(1,3); msg=`Island: ${size} = ${formatMoney(price)}`; data={type:"island",size,price}; }
-  return {msg,data};
-}
+        // Login function
+        function login() {
+            const username = usernameInput.value.trim();
+            if (!username) {
+                showNotification('Please enter a username', 'danger');
+                return;
+            }
 
-function handleOffer(data){
-  let user=getUser(currentUser);
-  let price=data.price;
-  if(user.balance>=price){
-    user.balance-=price;
-    let entry={type:data.type,spent:price};
-    if(data.grams) entry.grams=data.grams;
-    if(data.shares) entry.shares=data.shares;
-    if(data.capacity) entry.capacity=data.capacity;
-    entry.quantity=entry.quantity||1;
-    user.properties.push(entry);
-    user.event_log.push(`Bought ${data.type} for ${formatMoney(price)}`);
-    updateUser(currentUser,user);
-  } else {
-    user.event_log.push(`Skipped offer: Not enough balance`);
-  }
-}
+            const user = getUser(username);
+            
+            // For simplicity in this demo, we'll skip password verification
+            // In a real app, you'd hash passwords
+            if (user.password) {
+                const password = passwordInput.value;
+                if (password !== user.password) {
+                    showNotification('Incorrect password', 'danger');
+                    return;
+                }
+            } else {
+                // New user - save password if provided
+                if (passwordInput.value) {
+                    user.password = passwordInput.value;
+                    updateUser(username, user);
+                    showNotification('Account created! Save your password.', 'success');
+                }
+            }
 
-function sellProperty(index){
-  let user=getUser(currentUser);
-  let item=user.properties[index];
-  let value=Math.floor(item.spent*0.7);
-  user.balance+=value;
-  user.event_log.push(`Sold ${item.type} for ${formatMoney(value)}`);
-  user.properties.splice(index,1);
-  updateUser(currentUser,user);
-}
+            gameState.currentUser = username;
+            loadGameScreen();
+        }
 
-function startAuction(){
-  let price=rand(500,2000);
-  let user=getUser(currentUser);
-  let final=price+rand(100,500);
-  if(user.balance>=final){
-    user.balance-=final;
-    user.properties.push({type:"auction_item",spent:final,quantity:1});
-    user.event_log.push(`Won auction for ${formatMoney(final)}`);
-    updateUser(currentUser,user);
-  } else {
-    user.event_log.push(`Skipped auction (not enough balance)`);
-  }
-}
+        // Load game screen
+        function loadGameScreen() {
+            loginScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            renderGame();
+        }
 
-function nextDay(){
-  let user=getUser(currentUser); 
-  user.day+=1; 
-  updateUser(currentUser,user);
+        // Render game state
+        function renderGame() {
+            const user = getUser(gameState.currentUser);
+            
+            // Update game info
+            dayValue.textContent = user.day;
+            balanceValue.textContent = `$${user.balance}`;
+            propertiesCount.textContent = user.properties.length;
+            
+            // Render properties
+            propertiesList.innerHTML = '';
+            if (user.properties.length === 0) {
+                propertiesList.innerHTML = '<p>No properties yet. Make your first investment!</p>';
+            } else {
+                user.properties.forEach(prop => {
+                    const propCard = document.createElement('div');
+                    propCard.className = 'property-card';
+                    
+                    let amount = 0;
+                    if (prop.type === 'gold') amount = prop.grams || 0;
+                    else if (prop.type === 'company') amount = prop.shares || 0;
+                    else if (prop.type === 'factory') amount = prop.capacity || 0;
+                    else amount = prop.quantity || 1;
+                    
+                    propCard.innerHTML = `
+                        <div class="property-type">${prop.type.charAt(0).toUpperCase() + prop.type.slice(1)}</div>
+                        <div class="property-amount">${amount} ${gameState.units[prop.type]}</div>
+                        <div class="property-spent">Spent: $${prop.spent || 0}</div>
+                    `;
+                    
+                    propertiesList.appendChild(propCard);
+                });
+            }
+            
+            // Render event log
+            eventLog.innerHTML = '';
+            if (user.eventLog.length === 0) {
+                eventLog.innerHTML = '<p>No events yet for today...</p>';
+            } else {
+                user.eventLog.forEach(log => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'log-entry';
+                    logEntry.textContent = log;
+                    eventLog.appendChild(logEntry);
+                });
+            }
+        }
 
-  dailyIncome();
+        // Daily income function
+        function dailyIncome() {
+            const user = getUser(gameState.currentUser);
+            const baseIncome = 100;
+            const bonus = user.properties.length * 50;
+            const income = baseIncome + bonus;
+            
+            user.balance += income;
+            user.eventLog.push(`Daily income: $${income} (Base $${baseIncome} + $${bonus} bonus)`);
+            
+            updateUser(gameState.currentUser, user);
+            renderGame();
+            showNotification(`Received $${income} daily income!`, 'success');
+            
+            // Enable next buttons after income
+            setTimeout(() => {
+                incomeBtn.disabled = true;
+                generateEvents();
+            }, 1500);
+        }
 
-  let events=["offer","sell","auction"]; 
-  let ev=events[rand(0,2)];
+        // Generate daily events
+        function generateEvents() {
+            eventsContainer.innerHTML = '';
+            const eventCount = Math.floor(Math.random() * 4) + 2; // 2-5 events
+            
+            for (let i = 0; i < eventCount; i++) {
+                const eventType = ['offer', 'sell', 'auction'][Math.floor(Math.random() * 3)];
+                
+                if (eventType === 'offer') {
+                    createOfferEvent();
+                } else if (eventType === 'sell') {
+                    createSellEvent();
+                } else {
+                    createAuctionEvent();
+                }
+            }
+        }
 
-  if(ev==="offer"){
-    let {data}=getOffer();
-    handleOffer(data);
-  }
-  else if(ev==="sell"){ 
-    if(user.properties.length){ 
-      let idx=rand(0,user.properties.length-1); 
-      sellProperty(idx); 
-    } else {
-      user.event_log.push("No properties to sell today");
-    }
-  }
-  else if(ev==="auction"){ 
-    startAuction(); 
-  }
+        // Create offer event
+        function createOfferEvent() {
+            const offerData = getOffer();
+            const offerDiv = document.createElement('div');
+            offerDiv.className = 'offer';
+            offerDiv.innerHTML = `
+                <h3>Investment Offer</h3>
+                <p>${offerData.message}</p>
+                <div class="offer-actions">
+                    <button class="success" onclick="buyOffer('${offerData.data.type}', ${JSON.stringify(offerData.data).replace(/"/g, '&quot;')})">Buy</button>
+                    <button class="warning" onclick="negotiateOffer(${JSON.stringify(offerData.data).replace(/"/g, '&quot;')})">Negotiate</button>
+                    <button class="danger" onclick="skipOffer()">Skip</button>
+                </div>
+            `;
+            eventsContainer.appendChild(offerDiv);
+        }
 
-  render(`Day advanced to ${user.day}`);
-}
+        // Create sell event
+        function createSellEvent() {
+            const user = getUser(gameState.currentUser);
+            if (user.properties.length === 0) return;
+            
+            const item = user.properties[Math.floor(Math.random() * user.properties.length)];
+            const ttype = item.type;
+            
+            let amt = 0;
+            if (ttype === 'gold') amt = item.grams || 0;
+            else if (ttype === 'company') amt = item.shares || 0;
+            else if (ttype === 'factory') amt = item.capacity || 0;
+            else amt = item.quantity || 1;
+            
+            let price = 0;
+            let priceText = '';
+            
+            if (ttype === 'gold') {
+                const ppg = Math.floor(Math.random() * 81) + 40; // 40-120
+                price = amt * ppg;
+                priceText = `${amt}g gold at $${ppg}/g for total $${price}`;
+            } else if (ttype === 'company') {
+                const pps = Math.floor(Math.random() * 251) + 150; // 150-400
+                price = amt * pps;
+                priceText = `${amt} shares at $${pps}/share for total $${price}`;
+            } else if (ttype === 'factory') {
+                const pf = Math.floor(Math.random() * 1201) + 800; // 800-2000
+                price = amt * pf;
+                priceText = `factory (cap ${amt}) at $${pf}/unit for total $${price}`;
+            } else if (ttype === 'island') {
+                price = Math.floor(Math.random() * 4001) + 1000; // 1000-5000
+                priceText = `island for $${price}`;
+            } else {
+                price = amt * (Math.floor(Math.random() * 321) + 80); // 80-400
+                priceText = `${amt} ${gameState.units[ttype]} for $${price}`;
+            }
+            
+            const sellDiv = document.createElement('div');
+            sellDiv.className = 'offer';
+            sellDiv.innerHTML = `
+                <h3>Sell Opportunity</h3>
+                <p>A buyer offers $${price} for your ${priceText}</p>
+                <div class="offer-actions">
+                    <button class="success" onclick="sellProperty('${item.type}', ${JSON.stringify(item).replace(/"/g, '&quot;')})">Sell</button>
+                    <button class="danger" onclick="skipSell()">Skip</button>
+                </div>
+            `;
+            eventsContainer.appendChild(sellDiv);
+        }
 
-// ====== Helpers ======
-function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+        // Create auction event
+        function createAuctionEvent() {
+            const types = ['land', 'property', 'gold', 'factory', 'company', 'island'];
+            const ttype = types[Math.floor(Math.random() * types.length)];
+            
+            let start = 0;
+            if (['gold', 'factory'].includes(ttype)) {
+                start = Math.floor(Math.random() * 81) + 20; // 20-100
+            } else {
+                start = Math.floor(Math.random() * 201) + 100; // 100-300
+            }
+            
+            const auctionDiv = document.createElement('div');
+            auctionDiv.className = 'offer';
+            auctionDiv.innerHTML = `
+                <h3>Auction Event</h3>
+                <p>Auction for ${ttype} starts at $${start}</p>
+                <div class="input-group">
+                    <input type="number" id="bid-input-${ttype}" placeholder="Enter your bid" min="${start}">
+                </div>
+                <div class="offer-actions">
+                    <button class="success" onclick="placeBid('${ttype}', ${start})">Place Bid</button>
+                    <button class="danger" onclick="skipAuction()">Skip Auction</button>
+                </div>
+            `;
+            eventsContainer.appendChild(auctionDiv);
+        }
 
-// ====== Render ======
-function render(extra=""){
-  let user=getUser(currentUser);
-  document.getElementById("userName").innerText=currentUser;
-  document.getElementById("balance").innerText=formatMoney(user.balance);
-  document.getElementById("day").innerText=user.day;
-  let props=document.getElementById("propertiesList"); props.innerHTML="";
-  user.properties.forEach((p,i)=>{ let li=document.createElement("li");
-    li.innerHTML=JSON.stringify(p); props.appendChild(li); });
-  let logs=document.getElementById("eventLog"); logs.innerHTML="";
-  user.event_log.slice(-10).reverse().forEach(ev=>{ let li=document.createElement("li"); li.textContent=ev; logs.appendChild(li); });
-  if(extra) document.getElementById("result").innerText=extra;
-}
+        // Get a random offer
+        function getOffer() {
+            const types = ['land', 'property', 'gold', 'factory', 'company', 'island'];
+            const ttype = types[Math.floor(Math.random() * types.length)];
 
-// ====== Auto Run ======
-function startAutoGame(){
-  setInterval(nextDay, 3000); // 1 day = 3 seconds
-}
-</script>
+            if (ttype === 'land') {
+                const price = Math.floor(Math.random() * 401) + 100; // 100-500
+                return {
+                    message: `Land offer: Buy 1 plot for $${price}`,
+                    data: { type: ttype, price }
+                };
+            }
+            if (ttype === 'property') {
+                const price = Math.floor(Math.random() * 1501) + 500; // 500-2000
+                return {
+                    message: `Property offer: Buy 1 unit for $${price}`,
+                    data: { type: ttype, price }
+                };
+            }
+            if (ttype === 'gold') {
+                const grams = Math.floor(Math.random() * 91) + 10; // 10-100
+                const ppg = Math.floor(Math.random() * 51) + 50; // 50-100
+                const total = grams * ppg;
+                return {
+                    message: `Gold offer: ${grams}g at $${ppg}/g for total $${total}`,
+                    data: { type: 'gold', grams, price_per_gram: ppg, price: total }
+                };
+            }
+            if (ttype === 'factory') {
+                const capacity = Math.floor(Math.random() * 5) + 1;
+                const price = capacity * (Math.floor(Math.random() * 4001) + 1000);
+                return {
+                    message: `Factory offer: Buy factory with capacity ${capacity} for $${price}`,
+                    data: { type: ttype, capacity, price }
+                };
+            }
+            if (ttype === 'company') {
+                const shares = Math.floor(Math.random() * 41) + 10;
+                const pps = Math.floor(Math.random() * 301) + 200;
+                const total = shares * pps;
+                return {
+                    message: `Company offer: ${shares} shares at $${pps}/share for total $${total}`,
+                    data: { type: ttype, shares, price_per_share: pps, price: total }
+                };
+            }
+            // Island
+            const sizes = ['small', 'medium', 'large'];
+            const size = sizes[Math.floor(Math.random() * sizes.length)];
+            const multipliers = { small: 500, medium: 2000, large: 5000 };
+            const price = multipliers[size] * (Math.floor(Math.random() * 3) + 1);
+            return {
+                message: `Island offer: Buy a ${size} island for $${price}`,
+                data: { type: ttype, size, price }
+            };
+        }
+
+        // Handle buying an offer
+        function buyOffer(type, data) {
+            const user = getUser(gameState.currentUser);
+            const price = data.price;
+            
+            if (user.balance < price) {
+                showNotification('Not enough balance!', 'danger');
+                return;
+            }
+            
+            user.balance -= price;
+            
+            // Check if property exists
+            let exists = false;
+            for (const item of user.properties) {
+                if (item.type === type) {
+                    if (type === 'gold') item.grams += data.grams || 0;
+                    else if (type === 'company') item.shares = (item.shares || 0) + (data.shares || 0);
+                    else if (type === 'factory') item.capacity = (item.capacity || 0) + (data.capacity || 0);
+                    else item.quantity = (item.quantity || 0) + 1;
+                    item.spent = (item.spent || 0) + price;
+                    exists = true;
+                    break;
+                }
+            }
+            
+            if (!exists) {
+                const entry = { type, spent: price };
+                if (type === 'gold') entry.grams = data.grams;
+                else if (type === 'company') entry.shares = data.shares;
+                else if (type === 'factory') entry.capacity = data.capacity;
+                else entry.quantity = 1;
+                user.properties.push(entry);
+            }
+            
+            user.eventLog.push(`Bought ${type} for $${price}`);
+            updateUser(gameState.currentUser, user);
+            renderGame();
+            showNotification(`Purchased ${type} for $${price}!`, 'success');
+        }
+
+        // Handle negotiation
+        function negotiateOffer(data) {
+            const user = getUser(gameState.currentUser);
+            const originalPrice = data.price;
+            const discount = 0.05 + Math.random() * 0.25; // 5-30% off
+            const newPrice = Math.floor(originalPrice * (1 - discount));
+            
+            if (confirm(`Negotiated price: $${newPrice}\nDo you want to buy at this price?`)) {
+                if (user.balance < newPrice) {
+                    showNotification('Not enough balance!', 'danger');
+                    return;
+                }
+                
+                buyOffer(data.type, { ...data, price: newPrice });
+            } else {
+                showNotification('Negotiation cancelled', 'warning');
+            }
+        }
+
+        // Skip offer
+        function skipOffer() {
+            showNotification('Offer skipped', 'warning');
+        }
+
+        // Sell property
+        function sellProperty(type, item) {
+            const user = getUser(gameState.currentUser);
+            
+            // Calculate sale price
+            let amt = 0;
+            if (type === 'gold') amt = item.grams || 0;
+            else if (type === 'company') amt = item.shares || 0;
+            else if (type === 'factory') amt = item.capacity || 0;
+            else amt = item.quantity || 1;
+            
+            let price = 0;
+            if (type === 'gold') {
+                const ppg = Math.floor(Math.random() * 81) + 40; // 40-120
+                price = amt * ppg;
+            } else if (type === 'company') {
+                const pps = Math.floor(Math.random() * 251) + 150; // 150-400
+                price = amt * pps;
+            } else if (type === 'factory') {
+                const pf = Math.floor(Math.random() * 1201) + 800; // 800-2000
+                price = amt * pf;
+            } else if (type === 'island') {
+                price = Math.floor(Math.random() * 4001) + 1000; // 1000-5000
+            } else {
+                price = amt * (Math.floor(Math.random() * 321) + 80); // 80-400
+            }
+            
+            user.balance += price;
+            
+            // Remove or decrement property
+            if (['gold', 'company', 'factory'].includes(type)) {
+                user.properties = user.properties.filter(p => p !== item);
+            } else {
+                if (item.quantity > amt) {
+                    item.quantity -= amt;
+                } else {
+                    user.properties = user.properties.filter(p => p !== item);
+                }
+            }
+            
+            user.eventLog.push(`Sold ${amt} ${gameState.units[type]} of ${type} for $${price}`);
+            updateUser(gameState.currentUser, user);
+            renderGame();
+            showNotification(`Sold ${type} for $${price}!`, 'success');
+        }
+
+        // Skip sell
+        function skipSell() {
+            showNotification('Sell opportunity skipped', 'warning');
+        }
+
+        // Place bid in auction
+        function placeBid(type, start) {
+            const bidInput = document.getElementById(`bid-input-${type}`);
+            const bid = parseInt(bidInput.value);
+            
+            if (isNaN(bid) || bid < start) {
+                showNotification(`Bid must be at least $${start}`, 'danger');
+                return;
+            }
+            
+            const user = getUser(gameState.currentUser);
+            if (bid > user.balance) {
+                showNotification('Not enough balance for this bid!', 'danger');
+                return;
+            }
+            
+            // Deduct bid amount
+            user.balance -= bid;
+            
+            // Create auction item data
+            const auctionData = { type, price: bid };
+            if (type === 'gold') auctionData.grams = Math.floor(Math.random() * 91) + 10;
+            else if (type === 'company') auctionData.shares = Math.floor(Math.random() * 41) + 10;
+            else if (type === 'factory') auctionData.capacity = Math.floor(Math.random() * 5) + 1;
+            else auctionData.quantity = 1;
+            
+            // Add to properties
+            user.properties.push({ ...auctionData, spent: bid });
+            user.eventLog.push(`Won auction for ${type} with bid $${bid}`);
+            
+            updateUser(gameState.currentUser, user);
+            renderGame();
+            showNotification(`Won auction for ${type} with bid $${bid}!`, 'success');
+        }
+
+        // Skip auction
+        function skipAuction() {
+            showNotification('Auction skipped', 'warning');
+        }
+
+        // End the day
+        function nextDay() {
+            const user = getUser(gameState.currentUser);
+            
+            // Merge gold properties
+            const merged = [];
+            let goldTotal = 0;
+            
+            for (const item of user.properties) {
+                if (item.type === 'gold') {
+                    goldTotal += item.grams || 0;
+                } else {
+                    merged.push(item);
+                }
+            }
+            
+            if (goldTotal > 0) {
+                merged.push({ type: 'gold', grams: goldTotal, spent: 0 });
+            }
+            
+            user.properties = merged;
+            
+            // Advance to next day
+            user.day += 1;
+            user.eventLog = []; // Clear daily log
+            
+            updateUser(gameState.currentUser, user);
+            
+            // Reset UI for next day
+            eventsContainer.innerHTML = '';
+            incomeBtn.disabled = false;
+            nextDayBtn.disabled = true;
+            
+            renderGame();
+            showNotification(`Day ${user.day} started!`, 'success');
+        }
+
+        // Event listeners
+        loginBtn.addEventListener('click', login);
+        incomeBtn.addEventListener('click', dailyIncome);
+        nextDayBtn.addEventListener('click', nextDay);
+
+        // Initialize
+        usernameInput.focus();
+    </script>
 </body>
 </html>
