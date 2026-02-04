@@ -5,57 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MYM Games</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .game-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white">
+<body class="bg-gray-900 text-white min-h-screen">
   <!-- Navbar -->
-  <nav class="bg-gray-800 p-4 shadow-md">
-    <div class="container mx-auto flex justify-between">
-      <img src="jttps://mym-apps.vercel.app/logo.png" class="w-12 h-12 object-cover">
-      <span><h1 class="text-2xl font-heading hidden md:block">Games</h1></span>
-      <a href="https://mymlibrary.vercel.app/" class="text-gray-300 hover:text-white">Back Home</a>
+  <nav class="bg-gray-800/80 backdrop-blur-md p-4 shadow-lg sticky top-0 z-10">
+    <div class="container mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img 
+          src="https://mym-apps.vercel.app/logo.png" 
+          alt="MYM Logo" 
+          class="w-9 h-9 rounded-full object-cover border border-indigo-500"
+        >
+        <span class="text-xl font-bold text-indigo-300">| Gamez</span>
+      </div>
+      <a 
+        href="https://mym-apps.vercel.app/" 
+        class="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
+      >
+        ← Back Home
+      </a>
     </div>
   </nav>
 
   <!-- Main Content -->
-  <main class="container mx-auto p-6">
-    <h2 class="text-3xl font-bold mb-6">Available Games</h2>
-    <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+  <main class="container mx-auto px-4 py-10">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+        Available Games
+      </h2>
+      <p class="text-gray-400 mt-2 max-w-2xl mx-auto">
+        Enjoy our collection of fun and challenging games — all built with love!
+      </p>
+    </div>
 
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-6xl mx-auto">
       <!-- Game Card -->
-      <!-- Game Card -->
-<div class="bg-gray-800 rounded-2xl shadow-md overflow-hidden hover:scale-105 transform transition">
-  <div class="flex justify-center py-4">
-    <svg xmlns="http://www.w3.org/2000/svg" height="100px" viewBox="0 -960 960 960" width="100px" fill="#e3e3e3">
-      <path d="M318-420v-295h90v295l-45-45-45 45Zm194 91v-551h90v461l-90 90ZM124-229v-320h90v230l-90 90Zm-4 111 246-246 149 132 262-262h-88v-60h191v190h-60v-88L517-149 368-280 206-118h-86Z"/>
-    </svg>
-  </div>
-  <div class="p-4">
-    <h3 class="text-xl font-bold mb-2">Investor Game</h3>
-    <p class="text-gray-400 text-sm mb-4">Build your empire, buy assets, and grow rich!</p>
-    <a href="/investor_game.html" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg block text-center">Play Now</a>
-  </div>
-</div>
-      <!--
-      
-      <div class="bg-gray-800 rounded-2xl shadow-md overflow-hidden hover:scale-105 transform transition">
-        <img src="https://via.placeholder.com/400x200?text=Game+2" alt="Game 2" class="w-full h-40 object-cover">
-        <div class="p-4">
-          <h3 class="text-xl font-bold mb-2">Guess the Number</h3>
-          <p class="text-gray-400 text-sm mb-4">Try to guess the hidden number in the fewest tries!</p>
-          <a href="game2/index.html" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg block text-center">Play Now</a>
+      <div class="game-card bg-gray-800/60 rounded-2xl overflow-hidden border border-gray-700 hover:border-indigo-500 transition-all duration-300">
+        <div class="flex justify-center py-6 bg-gray-900/50">
+          <svg xmlns="http://www.w3.org/2000/svg" height="80px" viewBox="0 -960 960 960" width="80px" fill="#a78bfa">
+            <path d="M318-420v-295h90v295l-45-45-45 45Zm194 91v-551h90v461l-90 90ZM124-229v-320h90v230l-90 90Zm-4 111 246-246 149 132 262-262h-88v-60h191v190h-60v-88L517-149 368-280 206-118h-86Z"/>
+          </svg>
+        </div>
+        <div class="p-5">
+          <h3 class="text-xl font-bold mb-2 text-white">Investor Game</h3>
+          <p class="text-gray-400 text-sm mb-4 leading-relaxed">
+            Build your empire, buy assets, and grow rich!
+          </p>
+          <a 
+            href="/investor_game.html" 
+            target="_blank" 
+            class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg block text-center font-medium transition-all duration-200"
+          >
+            Play Now
+          </a>
         </div>
       </div>
 
-      
-      <div class="bg-gray-800 rounded-2xl shadow-md overflow-hidden hover:scale-105 transform transition">
-        <img src="https://via.placeholder.com/400x200?text=Game+3" alt="Game 3" class="w-full h-40 object-cover">
-        <div class="p-4">
-          <h3 class="text-xl font-bold mb-2">Tic Tac Toe</h3>
-          <p class="text-gray-400 text-sm mb-4">Classic X-O game, challenge your friend!</p>
-          <a href="game3/index.html" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg block text-center">Play Now</a>
-        </div>
-      </div>
-        -->
+      <!-- يمكنك إضافة باقي الألعاب هنا بنفس النمط -->
+
     </div>
   </main>
 </body>
